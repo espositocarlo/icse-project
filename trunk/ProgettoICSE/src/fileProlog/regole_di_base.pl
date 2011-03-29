@@ -9,67 +9,67 @@
 
 
 %#############################################################################################################
-% NOME: plus_commutativo(Expr,Op1,Op2,Metodo,Classe)
+% NOME: plus_commutativo(Expr,Op1,Op2,Classe,Metodo)
 % SERVE A: somma commutativa
 %#############################################################################################################
-plus_commutativo(Expr,Op1,Op2,Metodo,Classe) :-
-												plus(Expr,Op1,Op2,Metodo,Classe);%or
-                                                plus(Expr,Op2,Op1,Metodo,Classe).
+plus_commutativo(Expr,Op1,Op2,Classe,Metodo) :-
+												plus(Expr,Op1,Op2,Classe,Metodo);%or
+                                                plus(Expr,Op2,Op1,Classe,Metodo).
 % -------------------------------------------------------------------------------------------------------------
 
 %#############################################################################################################
-% NOME: times_commutativo(Expr, OpTimes1, OpTimes2, Metodo, Classe)
+% NOME: times_commutativo(Expr, OpTimes1, OpTimes2, Classe_1, Classe)
 % SERVE A: moltiplicazione commutativa
 %#############################################################################################################
-times_commutativo(Expr,OpTimes1,OpTimes2,Metodo,Classe)  :-
-												times(Expr,OpTimes1,OpTimes2,Metodo,Classe);%or
-                                                times(Expr,OpTimes2,OpTimes1,Metodo,Classe).
+times_commutativo(Expr,OpTimes1,OpTimes2,Classe,Metodo)  :-
+												times(Expr,OpTimes1,OpTimes2,Classe,Metodo);%or
+                                                times(Expr,OpTimes2,OpTimes1,Classe,Metodo).
 % -------------------------------------------------------------------------------------------------------------
 
 %#############################################################################################################
-% NOME: ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Metodo,Classe)
+% NOME: ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe_1,Metodo)
 % SERVE A: riconoscere un ampia classe di cicli for
 %#############################################################################################################
-ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Metodo,Classe):-
-		for_r(ID,_,Init_CicloFor, Exit_CicloFor, Incr_CicloFor, Metodo,Classe),
-		scalar_var_inst(Init_CicloFor,Variabile,Metodo,Classe),
+ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe_1,Metodo):-
+		for_r(ID,_,Init_CicloFor, Exit_CicloFor, Incr_CicloFor, Classe_1,Metodo),
+		scalar_var_inst(Init_CicloFor,Variabile,Classe,Metodo),
 		% condizioni di inizializzazione
 		(
 			% esempio i=0
 			(
-				uguaglianza(Init_CicloFor,Uguaglianza_ref,Metodo,Classe)
-			) -> Funtore_init = uguaglianza(Init_CicloFor,Uguaglianza_ref,Metodo,Classe)
+				uguaglianza(Init_CicloFor,Uguaglianza_ref,Classe,Metodo)
+			) -> Funtore_init = uguaglianza(Init_CicloFor,Uguaglianza_ref,Classe,Metodo)
 			;
 			% esempio i=j+1
 			(
-				plus_commutativo(Init_CicloFor,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Metodo,Classe)
-			) -> Funtore_init = plus_commutativo(Init_CicloFor,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Metodo,Classe)
+				plus_commutativo(Init_CicloFor,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Classe,Metodo)
+			) -> Funtore_init = plus_commutativo(Init_CicloFor,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Classe,Metodo)
 		),
 		% condizione di uscita
 		(
 			% esempio i<10
 			(
-				less(Exit_CicloFor,Less_ref_1,Less_ref_2,Metodo,Classe),
+				less(Exit_CicloFor,Less_ref_1,Less_ref_2,Classe,Metodo),
 				scalar_var_ref(Less_ref_1,Variabile)
-			) -> Funtore_exit = less(Exit_CicloFor,Less_ref_1,Less_ref_2,Metodo,Classe)
+			) -> Funtore_exit = less(Exit_CicloFor,Less_ref_1,Less_ref_2,Classe,Metodo)
 			;
 			% esempio i>=10
 			(
-				greater_equal(Exit_CicloFor,Greater_equal_ref_1,Greater_equal_ref_2,Metodo,Classe),
+				greater_equal(Exit_CicloFor,Greater_equal_ref_1,Greater_equal_ref_2,Classe,Metodo),
 				scalar_var_ref(Greater_equal_ref_1,Variabile)
-			) -> Funtore_exit = greater_equal(Exit_CicloFor,Greater_equal_ref_1,Greater_equal_ref_2,Metodo,Classe)
+			) -> Funtore_exit = greater_equal(Exit_CicloFor,Greater_equal_ref_1,Greater_equal_ref_2,Classe,Metodo)
 		),
 		% incremento
 		(
 			(
-				post_incr(Incr_CicloFor,Post_incr_ref,Metodo,Classe),
+				post_incr(Incr_CicloFor,Post_incr_ref,Classe,Metodo),
 				scalar_var_ref(Post_incr_ref,Variabile)
-			) -> Funtore_incr = post_incr(Incr_CicloFor,Post_incr_ref,Metodo,Classe)
+			) -> Funtore_incr = post_incr(Incr_CicloFor,Post_incr_ref,Classe,Metodo)
 			;
 			(
-				post_decr(Incr_CicloFor,Post_decr_ref,Metodo,Classe),
+				post_decr(Incr_CicloFor,Post_decr_ref,Classe,Metodo),
 				scalar_var_ref(Post_decr_ref,Variabile)
-			) -> Funtore_incr = post_decr(Incr_CicloFor,Post_decr_ref,Metodo,Classe)
+			) -> Funtore_incr = post_decr(Incr_CicloFor,Post_decr_ref,Classe,Metodo)
 		).
 
 
@@ -82,15 +82,15 @@ ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Metodo,Classe
 %#############################################################################################################
 copia_matrice(IdMatrice1, Matrice1, IdMatrice2, Matrice2) :-
 				% c'è un' espressione di valorizzazione
-				scalar_var_inst(IdMatrice1,Matrice1,Metodo,Classe),
+				scalar_var_inst(IdMatrice1,Matrice1,Classe,Metodo),
 				% c'è una definizione della variabile valorizzata come matrice
-				array_var_def(Matrice1,TipoMatrice,DimMatrice,IdMatrice1,[DimRig,DimCol],Metodo,Classe),
+				array_var_def(Matrice1,TipoMatrice,DimMatrice,IdMatrice1,[DimRig,DimCol],Classe,Metodo),
 				% c'è un'uguaglianza tra la variabile e un'altra
 				uguaglianza(IdMatrice1,IdMatrice2),
 				% l'uguaglianza comprende un array al secondo membro
 				array_elem_ref(IdMatrice2,Matrice2,[DimRig,DimCol]),
 				% l'array al secondo membro è definito come una matrice
-				array_var_def(Matrice2,TipoMatrice,DimMatrice,IdMatrice2,[DimRig,DimCol],Metodo,Classe).
+				array_var_def(Matrice2,TipoMatrice,DimMatrice,IdMatrice2,[DimRig,DimCol],Classe,Metodo).
 
 %-------------------------------------------------------------------------------------------------------------
 
@@ -101,25 +101,25 @@ copia_matrice(IdMatrice1, Matrice1, IdMatrice2, Matrice2) :-
 % inizio replace pasquale
 %copia_array(IdArray1, Array1, IdArray2, Array2) :-
 %				% c'è un' espressione di valorizzazione
-%				scalar_var_inst(IdArray1,Array1,Metodo,Classe),
+%				scalar_var_inst(IdArray1,Array1,Classe,Metodo),
 %				% c'è una definizione della variabile valorizzata come vettore
-%				array_var_def(Array1,_,1,IdArray1,[_],Metodo,Classe),
+%				array_var_def(Array1,_,1,IdArray1,[_],Classe,Metodo),
 %				% c'è un'uguaglianza tra la variabile e un'altra
 %				uguaglianza(IdArray1,IdArray2),
 %				% l'uguaglianza comprende un array al secondo membro
 %				array_elem_ref(IdArray2,Array2,[_]).
 %--------------------------------------------------------------
 copia_array(ID_expression,Array1,Array2) :-
-				scalar_var_inst(ID_expression,Array1,Metodo,Classe),			%Array1
-				uguaglianza(ID_expression,Uguaglianza_ref,Metodo,Classe),		% = ...
-				scalar_var_ref(Uguaglianza_ref,Array2,Metodo,Classe),						%Array2
+				scalar_var_inst(ID_expression,Array1,Classe,Metodo),			%Array1
+				uguaglianza(ID_expression,Uguaglianza_ref,Classe,Metodo),		% = ...
+				scalar_var_ref(Uguaglianza_ref,Array2,Classe,Metodo),						%Array2
 				(
-					array_var_def(Array1,Tipo,Dimensione,_,_,Metodo,Classe);
-					array_var_def(Array1,Tipo,Dimensione,_,_,null,Classe)
+					array_var_def(Array1,Tipo,Dimensione,_,_,Classe,Metodo);
+					array_var_def(Array1,Tipo,Dimensione,_,_,null,Metodo)
 				),
 				(
-					array_var_def(Array2,Tipo,Dimensione,_,_,Metodo,Classe);
-					array_var_def(Array2,Tipo,Dimensione,_,_,null,Classe)
+					array_var_def(Array2,Tipo,Dimensione,_,_,Classe,Metodo);
+					array_var_def(Array2,Tipo,Dimensione,_,_,null,Metodo)
 				)
 				.
 % fine replace pasquale
@@ -154,17 +154,17 @@ copia_array(ID_expression,Array1,Array2) :-
 									%la variabile viene utilizzata a destra nell'equazione
 									appartenenza(Equazione,Id1,right),
 									%c'è un espressione in cui tale id viene valorizzato
-									scalar_var_inst(Equazione2,Id1,Metodo,Classe),
+									scalar_var_inst(Equazione2,Id1,Classe,Metodo),
 									%c'è una data dependence fra i due statement
 									data_dependence(Equazione2,Equazione),
 									(
 									  (
-										uguaglianza(Equazione2,Uguaglianza_ref,Metodo,Classe),
+										uguaglianza(Equazione2,Uguaglianza_ref,Classe,Metodo),
 										array_elem_ref(Uguaglianza_ref,Id_Array,[Indice1,Indice2])
 									  ) -> Oggetto_equivalente = array_elem_ref(Uguaglianza_ref,Id_Array,[Indice1,Indice2])
 									;
 									  (
-										uguaglianza(Equazione2,Uguaglianza_ref,Metodo,Classe),
+										uguaglianza(Equazione2,Uguaglianza_ref,Classe,Metodo),
 									    scalar_var_ref(Uguaglianza_ref,Id_scalar_var)
 									  ) -> Oggetto_equivalente = scalar_var_ref(Uguaglianza_ref,Id_scalar_var)
 									;
