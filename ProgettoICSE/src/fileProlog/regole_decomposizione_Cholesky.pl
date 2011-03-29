@@ -147,8 +147,8 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :-
 	scalar_var_ref(Vref_1,Var_S),
 	array_elem_ref(Aref_3,Temp_2,[Variabile_3]),
 	array_elem_ref(Aref_4,Temp_1,[Variabile_3]),
-	times(Oref_1,Aref_3,Aref_4,Metodo,Classe),
-	plus(Id_Scalar_var_inst_5,Vref_1,Oref_1,Metodo,Classe),
+	times_commutativo(Oref_1,Aref_3,Aref_4,Metodo,Classe),
+	plus_commutativo(Id_Scalar_var_inst_5,Vref_1,Oref_1,Metodo,Classe),
 	scalar_var_inst(Id_Scalar_var_inst_6,Var_S,Metodo,Classe),
 	
 	%  s = (matriceA[j][k] - s)/matriceU[k][k];
@@ -169,7 +169,7 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :-
 	scalar_var_ref(Vref_5,Var_S),
 	scalar_var_ref(Vref_6,Var_S),
 	times(Oref_3,Vref_5,Vref_6,Metodo,Classe),
-	plus(Id_Scalar_var_inst_7,Vref_4,Oref_3,Metodo,Classe),
+	plus_commutativo(Id_Scalar_var_inst_7,Vref_4,Oref_3,Metodo,Classe),
 	
 	%  d = matriceA[j][j] - d;
 	scalar_var_inst(Id_Scalar_var_inst_8,Var_D,Metodo,Classe),
