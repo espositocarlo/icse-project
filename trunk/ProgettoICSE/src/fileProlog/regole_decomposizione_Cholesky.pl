@@ -1,6 +1,7 @@
 % consult
 :- consult('regole_di_base.pl').
 :- consult('control_dependence_Cholesky.pl').
+:- consult('data_dependence_Cholesky.pl').
 :- consult('fattiPrologCholesky.pl').
 
 
@@ -154,6 +155,9 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :-
 	times_commutativo(Oref_1,Aref_3,Aref_4,Classe,Metodo),
 	plus_commutativo(Id_Scalar_var_inst_5,Vref_1,Oref_1,Classe,Metodo),
 	control_dependence(ID_3,Id_Scalar_var_inst_5,Classe,Metodo),
+	true_data_dependence(Id_Scalar_var_inst_4, Id_Scalar_var_inst_5),
+	true_data_dependence(Id_Scalar_var_inst_3, Id_Scalar_var_inst_5),
+	true_data_dependence(Id_Scalar_var_inst_1, Id_Scalar_var_inst_5),
 	
 	%  s = (matriceA[j][k] - s)/matriceU[k][k];
 	scalar_var_inst(Id_Scalar_var_inst_6,Var_S,Classe,Metodo),
@@ -163,12 +167,14 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :-
 	array_elem_ref(Aref_6,MatriceU,[Variabile_2,Variabile_2]),
 	divide(Id_Scalar_var_inst_6,Oref_2,Aref_6,Classe,Metodo),
 	control_dependence(ID_2,Id_Scalar_var_inst_6,Classe,Metodo),
+	true_data_dependence(Id_Scalar_var_inst_5, Id_Scalar_var_inst_6),
 	
 	% tempLrowj[k] = s;
 	array_elem_inst(Arr_elem_inst_1,Temp_1,[Variabile_2],Classe,Metodo),
 	scalar_var_ref(Vref_3,Var_S),
 	uguaglianza(Arr_elem_inst_1,Vref_3,Classe,Metodo),
 	control_dependence(ID_2,Arr_elem_inst_1,Classe,Metodo),
+	true_data_dependence(Id_Scalar_var_inst_6, Arr_elem_inst_1),
 	
 	%   d = d + s*s;
 	scalar_var_inst(Id_Scalar_var_inst_7,Var_D,Classe,Metodo),
@@ -178,6 +184,8 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :-
 	times(Oref_3,Vref_5,Vref_6,Classe,Metodo),
 	plus_commutativo(Id_Scalar_var_inst_7,Vref_4,Oref_3,Classe,Metodo),
 	control_dependence(ID_2,Id_Scalar_var_inst_7,Classe,Metodo),
+	true_data_dependence(Id_Scalar_var_inst_2, Id_Scalar_var_inst_7),
+	true_data_dependence(Id_Scalar_var_inst_6, Id_Scalar_var_inst_7),
 	
 	%  d = matriceA[j][j] - d;
 	scalar_var_inst(Id_Scalar_var_inst_8,Var_D,Classe,Metodo),
@@ -185,12 +193,14 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :-
 	scalar_var_ref(Vref_7,Var_D),
 	minus(Id_Scalar_var_inst_8,Aref_7,Vref_7,Classe,Metodo),
 	control_dependence(ID_1,Id_Scalar_var_inst_8,Classe,Metodo),
+	true_data_dependence(Id_Scalar_var_inst_7, Id_Scalar_var_inst_8),
 	
 	%  matriceU[j][j] = Math.sqrt(d);
 	array_elem_inst(Id_Scalar_var_inst_9,MatriceU,[Variabile_1,Variabile_1],Classe,Metodo),
 	scalar_var_ref(Vref_8,Var_D),
 	chiamata(Id_Scalar_var_inst_9,Var_Sqrt,[Vref_8]),
-	control_dependence(ID_1,Id_Scalar_var_inst_9,Classe,Metodo).
+	control_dependence(ID_1,Id_Scalar_var_inst_9,Classe,Metodo),
+	true_data_dependence(Id_Scalar_var_inst_8, Id_Scalar_var_inst_9).
 	
 %-------------------------------------------------------------------------------------------------------------
 
