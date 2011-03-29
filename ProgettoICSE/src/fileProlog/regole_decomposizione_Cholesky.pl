@@ -46,7 +46,7 @@ triangolarizzazione_inferiore_matrice(Matrice) :-
 	scalar_var_ref(Less_ref_4, Dim),		
 	% ------------------------------------------------------
 	
-	% verifico che il cicloForCol ï¿½ innestato nel cicloForRow
+	% verifico che il cicloForCol è innestato nel cicloForRow
 	control_dependence(ID_1, ID_2, Metodo,Classe),
 	
 	% elementi della matrice posti a zero
@@ -62,7 +62,7 @@ triangolarizzazione_inferiore_matrice(Matrice) :-
 % NOME: calcolo_coefficienti_Cholesky(MatriceA, MatriceU)
 % SERVE A: rappresenta il fatto vengono calcolati i coefficienti di Cholesky
 %#############################################################################################################
-calcolo_coefficienti_Cholesky(MatriceA, MatriceU) :- 	
+calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2) :- 	
 	% CICLO CHE SCORRE LE RIGHE -----------------------------
 	ciclo_for(
 				ID_1, % ciclo for 1
@@ -133,7 +133,7 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU) :-
 	uguaglianza(Id_Scalar_var_inst_2,Cref_1,Metodo,Classe),
 	
 	% tempLrowk = matriceU[k];
-        scalar_var_inst(Id_Scalar_var_inst_3,Temp_2,Metodo,Classe),
+    scalar_var_inst(Id_Scalar_var_inst_3,Temp_2,Metodo,Classe),
 	array_elem_ref(Id_Array_eleme_ref_2,MatriceU,[Variabile_2]),
 	uguaglianza(Id_Scalar_var_inst_3,Id_Array_eleme_ref_2,Metodo,Classe),
 	
@@ -181,51 +181,31 @@ calcolo_coefficienti_Cholesky(MatriceA, MatriceU) :-
 	array_elem_inst(Id_Scalar_var_inst_9,MatriceU,[Variabile_1,Variabile_1],Metodo,Classe),
 	scalar_var_ref(Vref_8,Var_D),
 	chiamata(Id_Scalar_var_inst_9,Var_Sqrt,[Vref_8]).
-
-
+	
 %-------------------------------------------------------------------------------------------------------------
-%#############################################################################################################
-% NOME: dichiarazioni_Cholesky()
-% SERVE A: verifica le dichiarazioni degli elementi necessari per la decomposizione di Cholesky
-%#############################################################################################################
-dichiarazioni_Cholesky(MAT_A, MAT_U, TEMP_1, TEMP_2, DIM, J, K, I, M, D, S) :-
-    % dimensione matrice
-	scalar_var_def(N,Def_list_1,Metodo,Classe),
-	scalar_var_inst(Def_list_1,N,Metodo,Classe),
-	uguaglianza(Def_list_1,Cref_1,Metodo,Classe),
-	constant_ref(Cref_1,DIM),
-
-	% dichiarazione matriceA
-	array_var_def(MAT_A,double,2,ID_MAT_A,[N,N],Metodo,Classe),
-	
-	% dichiarazione matriceU
-	array_var_def(MAT_U,double,2,ID_MAT_U,[N,N],Metodo,Classe),
-	
-	% dichiarazioe vettori temp
-    array_var_def(TEMP_1,double,1,ID_TEMP_1,[N],Metodo,Classe),
-	array_var_def(TEMP_2,double,1,ID_TEMP_2,[N],Metodo,Classe),
-	
-    % indici dei for
-	scalar_var_def(J,ID_J,Metodo,Classe),
-    scalar_var_def(K,ID_K,Metodo,Classe),
-	scalar_var_def(I,ID_I,Metodo,Classe),
-	scalar_var_def(M,ID_M,Metodo,Classe),
-    
-    % variabili temp
-	scalar_var_def(D,ID_D,Metodo,Classe),
-    scalar_var_def(S,ID_S,Metodo,Classe).
-  
-
-% -------------------------------------------------------------------------------------------------------------
-
 
 %#############################################################################################################
 % NOME: decomposizione_di_Cholesky(Matrice)
 % SERVE A: riconosce la decomposizione di Cholesky
 %#############################################################################################################
 decomposizone_di_Cholesky(MatriceA, MatriceU) :- 
-		
-		triangolarizzazione_inferiore_matrice(MatriceU).
+	
+	% controllo MatriceA
+	array_var_def(MatriceA,double,2,_,[N,N],Metodo,Classe),
+	% controllo MatriceU
+	array_var_def(MatriceU,double,2,_,[N,N],Metodo,Classe),
+
+	% controllo Temp_1
+	array_var_def(Temp_1,double,1,_,[N],Metodo,Classe),
+	
+	%controllo Temp_2
+	array_var_def(Temp_2,double,1,_,[N],Metodo,Classe),
+
+	% controllo calcolo coefficienti di Cholesky
+	calcolo_coefficienti_Cholesky(MatriceA, MatriceU, Temp_1, Temp_2),
+	
+	% controllo triangolarizzazione MatriceU
+	triangolarizzazione_inferiore_matrice(MatriceU).
 		
 % -------------------------------------------------------------------------------------------------------------
 
