@@ -214,5 +214,5 @@ matrice_bidimensionale(Matrice):- array_var_def(Matrice,_,2,_,_,_,_).
 % UTILIZZATO IN:
 % SERVE A: vero se ID2 è true data dependent da ID1
 %#############################################################################################################
-true_data_dependence(ID1, ID2):- data_dependence(ID1, ID2, true,_,_).
+true_data_dependence(ID1, ID2):- data_dependence(true, ID1, ID2, _, 0,_,_).
 %--------------------------------------------------------------------------------------------------------------
