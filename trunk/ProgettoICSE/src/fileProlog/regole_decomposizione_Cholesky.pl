@@ -12,62 +12,54 @@
 triangolarizzazione_inferiore_matrice(ID_1,ID_2,Matrice) :- 
 				
 				
-				% esiste la matrice
-			%	array_var_def(Matrice,double,2,ID_Matrice,[DimRighe,DimColonne],Metodo,Classe),
-				
-				% % esite un cicloFor per le righe e uno per le colonne
+	% esiste la matrice
+	array_var_def(Matrice,double,2,ID_Matrice,[Dim,Dim],Metodo,Classe),
+	
+	% CICLO CHE SCORRE LE RIGHE -----------------------------
 	ciclo_for(
 				ID_1,
 				Variabile_1,
-				uguaglianza(Init_CicloFor,Uguaglianza_ref,Metodo,Classe),
-				less(Exit_CicloFor,Less_ref_1,Less_ref_2,Metodo,Classe),
-				post_incr(Incr_CicloFor,Post_incr_ref,Metodo,Classe),
+				uguaglianza(Init_CicloFor_Row,Uguaglianza_ref,Metodo,Classe),
+				less(Exit_CicloFor_Row,Less_ref_1,Less_ref_2,Metodo,Classe),
+				post_incr(Incr_CicloFor_Row,Post_incr_ref_1,Metodo,Classe),
 				Metodo,
 				Classe
 			),
+	
+	% la variabile che scorre le righe deve essere posta uguale 0
+	constant_ref(Uguaglianza_ref,0),
+	
+	% la condizione di uscita del for che scorre del righe deve rispettare la dimensione delle righe della matrice			
+	scalar_var_ref(Less_ref_2, Dim),
+	% ----------------------------------------------------
+	
+	% CICLO CHE SCORRE COLONNE ---------------------------
 	ciclo_for(
 				ID_2,
 				Variabile_2,
-				plus_commutativo(InitForCol,VarRef_1,ConstRef_1,Metodo,Classe),
-				less(ExitForCol,VarRef_2,VarRef_3,Metodo,Classe),
-				post_incr(IncrForCol, VarRef_4, Metodo,Classe),
+				plus_commutativo(Init_CicloFor_Col,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Metodo,Classe),
+				less(Exit_CicloFor_Col,Less_ref_3,Less_ref_4,Metodo,Classe),
+				post_incr(Incr_CicloFor_Col, Post_incr_ref_2, Metodo,Classe),
 				Metodo,
 				Classe
 			),
-				% verifico che il cicloForCol è innestato nel cicloForRow
-				true_dependence(ID_1, ID_2).
-				% 
-				% % CICLO CHE SCORRE COLONNE
-				% % la variabile che scorre le colonne deve essere posta uguale alla rigaCorrente + 1
-				% scalar_var_inst(InitForCol,Nome_InitForCol,Metodo,Classe),
-				% plus(InitForCol,VarRef_1,ConstRef_1,Metodo,Classe),		
-				% scalar_var_ref(VarRef_1,Nome_InitForRow),
-				% constant_ref(ConstRef_1,1),
-				% % la condizione di uscita del for che scorre del colonne deve rispettare la dimensione delle colonne della matrice
-				% less(ExitForCol,VarRef_2,VarRef_3,Metodo,Classe),
-				% scalar_var_ref(VarRef_2, Nome_InitForCol),
-				% scalar_var_ref(VarRef_3, DimColonne),
-				% % verifico la condizione di post_incremento della variabile che scorre le colonne
-				% post_incr(IncrForCol,VarRef_4,Metodo,Classe),
-				% scalar_var_ref(VarRef_4, Nome_InitForCol),
-				% 
-				% % CICLO CHE SCORRE LE RIGHE
-				% % la variabile che scorre le righe deve essere posta uguale 0
-				% scalar_var_inst(InitForRow,Nome_InitForRow,Metodo,Classe),		
-				% uguaglianza(InitForRow,ConstRef_2),
-				% constant_ref(ConstRef_2,0),
-				% % la condizione di uscita del for che scorre del righe deve rispettare la dimensione delle righe della matrice
-				% less(ExitForRow,VarRef_5,VarRef_6,Metodo,Classe),
-				% scalar_var_ref(VarRef_5, Nome_InitForRow),
-				% scalar_var_ref(VarRef_6, DimRighe),
-				% % verifico la condizione di post_incremento della variabile che scorre le righe
-				% post_incr(IncrForRow,VarRef_7,Metodo,Classe),
-				% scalar_var_ref(VarRef_7, Nome_InitForRow),
-				% 
-				% % elementi della matrice posti a zero
-				% array_elem_inst(ID_Array_Elem_Inst_1,Matrice,[Nome_InitForRow, Nome_InitForCol],Metodo,Classe),
-				% uguaglianza(ID_Array_Elem_Inst_1,ID_ConstRef_1),
-				% constant_ref(ID_ConstRef_1,0.0).
+	% la variabile che scorre le colonne deve essere posta uguale alla rigaCorrente + 1
+	scalar_var_ref(Plus_commutativo_ref_1,Variabile_1),
+	constant_ref(Plus_commutativo_ref_2,1),
+	
+	% la condizione di uscita del for che scorre del colonne deve rispettare la dimensione delle colonne della matrice
+	scalar_var_ref(Less_ref_4, Dim),		
+	% ------------------------------------------------------
+	
+	% verifico che il cicloForCol è innestato nel cicloForRow
+	control_dependence(ID_1, ID_2, Metodo,Classe),
+	
+	% elementi della matrice posti a zero
+	array_elem_inst(Array_Elem_Inst_1,Matrice,[Variabile_1, Variabile_2],Metodo,Classe),
+	uguaglianza(Array_Elem_Inst_1,Uguaglianza_ref_2,Metodo,Classe),
+	constant_ref(Uguaglianza_ref_2,0.0).
+	
+	
 				
 %-------------------------------------------------------------------------------------------------------------
 
