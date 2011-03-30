@@ -1,8 +1,9 @@
 % consult
-:- consult('C:\Users\Carlo\Documents\NetBeansProjects\ProgettoICSE\src\fileProlog\regoleBase\regole_di_base.pl').
-:- consult('C:\Users\Carlo\Documents\NetBeansProjects\ProgettoICSE\src\fileProlog\decomposizioneCholesky\KB\control_dependence_Cholesky.pl').
-:- consult('C:\Users\Carlo\Documents\NetBeansProjects\ProgettoICSE\src\fileProlog\decomposizioneCholesky\KB\data_dependence_Cholesky.pl').
-:- consult('C:\Users\Carlo\Documents\NetBeansProjects\ProgettoICSE\src\fileProlog\decomposizioneCholesky\KB\fattiPrologCholesky.pl').
+:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/regoleBase/regole_di_base.pl').
+:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/decomposizioneCholesky/KB/control_dependence_Cholesky.pl').
+:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/decomposizioneCholesky/KB/data_dependence_Cholesky.pl').
+:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/decomposizioneCholesky/KB/db_Syntax_Cholesky.pl').
+
 
 
 %#############################################################################################################
