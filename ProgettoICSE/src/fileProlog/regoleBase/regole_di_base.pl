@@ -18,7 +18,7 @@ plus_commutativo(Expr,Op1,Op2,Classe,Metodo) :-
 % -------------------------------------------------------------------------------------------------------------
 
 %#############################################################################################################
-% NOME: times_commutativo(Expr, OpTimes1, OpTimes2, Classe_1, Classe)
+% NOME: times_commutativo(Expr, OpTimes1, OpTimes2, Metodo, Classe)
 % SERVE A: moltiplicazione commutativa
 %#############################################################################################################
 times_commutativo(Expr,OpTimes1,OpTimes2,Classe,Metodo)  :-
@@ -27,11 +27,11 @@ times_commutativo(Expr,OpTimes1,OpTimes2,Classe,Metodo)  :-
 % -------------------------------------------------------------------------------------------------------------
 
 %#############################################################################################################
-% NOME: ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe_1,Metodo)
+% NOME: ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe,Metodo)
 % SERVE A: riconoscere un ampia classe di cicli for
 %#############################################################################################################
-ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe_1,Metodo):-
-		for_r(ID,_,Init_CicloFor, Exit_CicloFor, Incr_CicloFor, Classe_1,Metodo),
+ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe,Metodo):-
+		for_r(ID,_,Init_CicloFor, Exit_CicloFor, Incr_CicloFor, Classe,Metodo),
 		scalar_var_inst(Init_CicloFor,Variabile,Classe,Metodo),
 		% condizioni di inizializzazione
 		(
@@ -44,6 +44,12 @@ ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe_1,Meto
 			(
 				plus_commutativo(Init_CicloFor,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Classe,Metodo)
 			) -> Funtore_init = plus_commutativo(Init_CicloFor,Plus_commutativo_ref_1,Plus_commutativo_ref_2,Classe,Metodo)
+			;
+			% esempio i=n-k
+			(
+				minus(Init_CicloFor,Minus_ref_1,Minus_ref_2,Classe,Metodo)
+			) -> Funtore_init = minus(Init_CicloFor,Minus_ref_1,Minus_ref_2,Classe,Metodo)
+		
 		),
 		% condizione di uscita
 		(
@@ -76,53 +82,22 @@ ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe_1,Meto
 % --------------------------------------------------------------------------------------------------------------
 
 %#############################################################################################################
-% NOME: copia_matrice()
-% SERVE A: rappresenta il fatto un espressione rappresenta una copia di una matrice.
-% DA FARE: aggiungere in or il fatto che la copia potrebbe essere fatta a mano mediante 2 cicli for innestati
-%#############################################################################################################
-copia_matrice(IdMatrice1, Matrice1, IdMatrice2, Matrice2) :-
-				% c'è un' espressione di valorizzazione
-				scalar_var_inst(IdMatrice1,Matrice1,Classe,Metodo),
-				% c'è una definizione della variabile valorizzata come matrice
-				array_var_def(Matrice1,TipoMatrice,DimMatrice,IdMatrice1,[DimRig,DimCol],Classe,Metodo),
-				% c'è un'uguaglianza tra la variabile e un'altra
-				uguaglianza(IdMatrice1,IdMatrice2),
-				% l'uguaglianza comprende un array al secondo membro
-				array_elem_ref(IdMatrice2,Matrice2,[DimRig,DimCol]),
-				% l'array al secondo membro è definito come una matrice
-				array_var_def(Matrice2,TipoMatrice,DimMatrice,IdMatrice2,[DimRig,DimCol],Classe,Metodo).
-
-%-------------------------------------------------------------------------------------------------------------
-
-%#############################################################################################################
-% NOME: copia_array()
+% NOME: copia_array(ID_expression,Array1,Array2)
 % SERVE A: rappresenta il fatto che esiste una copia di un array.
 %#############################################################################################################
-% inizio replace pasquale
-%copia_array(IdArray1, Array1, IdArray2, Array2) :-
-%				% c'è un' espressione di valorizzazione
-%				scalar_var_inst(IdArray1,Array1,Classe,Metodo),
-%				% c'è una definizione della variabile valorizzata come vettore
-%				array_var_def(Array1,_,1,IdArray1,[_],Classe,Metodo),
-%				% c'è un'uguaglianza tra la variabile e un'altra
-%				uguaglianza(IdArray1,IdArray2),
-%				% l'uguaglianza comprende un array al secondo membro
-%				array_elem_ref(IdArray2,Array2,[_]).
-%--------------------------------------------------------------
 copia_array(ID_expression,Array1,Array2) :-
 				scalar_var_inst(ID_expression,Array1,Classe,Metodo),			%Array1
 				uguaglianza(ID_expression,Uguaglianza_ref,Classe,Metodo),		% = ...
 				scalar_var_ref(Uguaglianza_ref,Array2,Classe,Metodo),						%Array2
 				(
 					array_var_def(Array1,Tipo,Dimensione,_,_,Classe,Metodo);
-					array_var_def(Array1,Tipo,Dimensione,_,_,null,Metodo)
+					array_var_def(Array1,Tipo,Dimensione,_,_,Classe,null) %Metodo = null quando l'array è definito come variabile globale della Classe
 				),
 				(
 					array_var_def(Array2,Tipo,Dimensione,_,_,Classe,Metodo);
-					array_var_def(Array2,Tipo,Dimensione,_,_,null,Metodo)
+					array_var_def(Array2,Tipo,Dimensione,_,_,Classe,null) %Metodo = null quando l'array è definito come variabile globale della Classe
 				)
 				.
-% fine replace pasquale
 %-------------------------------------------------------------------------------------------------------------
 
 %#############################################################################################################
@@ -214,5 +189,5 @@ matrice_bidimensionale(Matrice):- array_var_def(Matrice,_,2,_,_,_,_).
 % UTILIZZATO IN:
 % SERVE A: vero se ID2 è true data dependent da ID1
 %#############################################################################################################
-true_data_dependence(ID1, ID2):- data_dependence(true, ID1, ID2, _, 0,_,_).
+true_data_dependence(ID1, ID2):- data_dependence(true,ID1,ID2,_,0,_,_).
 %--------------------------------------------------------------------------------------------------------------
