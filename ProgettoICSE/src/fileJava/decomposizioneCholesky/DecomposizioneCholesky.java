@@ -31,15 +31,15 @@ Tale scrittura si chiama decomposizione di Cholesky.
     //numero righe e colonne matrici
     int n = 3;
     //dichiarazione matriceA
-  //  double[][] matriceA = new double[n][n];
+    double[][] matriceA = new double[n][n];
 
-
+/*
    double[][] matriceA = {
         { 1, 3, 1 },
         { 3, 11, 1 },
         {1, 1, 6}
     };
-
+*/
     //dichiarazione matriceU
     double[][] matriceU = new double[n][n];
     //dichiarazione tempL
@@ -135,7 +135,7 @@ Tale scrittura si chiama decomposizione di Cholesky.
 //            }
 // System.out.println();
 //
-
+/*
  // STAMPA matriceU
  for(i = 0;i<n;i++){
             System.out.println();
@@ -145,6 +145,8 @@ Tale scrittura si chiama decomposizione di Cholesky.
             }
 
  System.out.println();
-   }
+ */
+ }
+
 }
 
