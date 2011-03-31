@@ -131,7 +131,7 @@ copia_array(ID_expression,Array1,Array2) :-
 									%c'è un espressione in cui tale id viene valorizzato
 									scalar_var_inst(Equazione2,Id1,Classe,Metodo),
 									%c'è una data dependence fra i due statement
-									data_dependence(Equazione2,Equazione),
+									true_data_dependence(Equazione2,Equazione),
 									(
 									  (
 										uguaglianza(Equazione2,Uguaglianza_ref,Classe,Metodo),
