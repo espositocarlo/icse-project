@@ -6,16 +6,16 @@ class ProdottoMatriciale_versione_1
     public static void main(String[] args)
     {
 
-        int i=0;// def_list_1
-        int j=0;// def_list_2
-	int z=0;// def_list_3
+        int i=0;
+        int j=0;
+	int z=0;
         int appMul, appA,appB,appC;
 	
         int a[][]=new int [10][5];
         int b[][]=new int [5][8];
         int c[][]=new int [10][8];
 
-      /*
+/*
         for( i = 0; i<10; i++){
             for(j =0; j<5; j++){
                 a[i][j]=i;
@@ -28,11 +28,11 @@ class ProdottoMatriciale_versione_1
             }
         }
 */
-        for(i=0;i<10;i++)
+        for(i=0;i<10;i++) // 10 = righe di A
         {
-            for(j=0;j<8;j++)
+            for(j=0;j<8;j++) // 8 = colonne di B
             {
-		for(z=0;z<5;z++)
+		for(z=0;z<5;z++) // 5 = righe di B
                 {		
                     appA=a[i][z];
 		    appB=b[z][j];
