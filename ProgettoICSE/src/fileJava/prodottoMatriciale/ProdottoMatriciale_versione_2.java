@@ -55,11 +55,12 @@ public class ProdottoMatriciale_versione_2 {
 
  */
 	//Dichiaro matrici
-	//double[][] A = new double [3][3];
-       // double[][] B = new double [3][3];
+	double[][] A = new double [3][3];
+        double[][] B = new double [3][3];
         double[][] R = new double [3][3];
 
-         double[][] A = {
+        /*
+        double[][] A = {
             { 1, 1, 3 },
             { 2, 1, 3 },
             {1, -2, 1}
@@ -69,7 +70,7 @@ public class ProdottoMatriciale_versione_2 {
             { 2, 3, -2 },
             {3, -1, 1}
             };
-
+            */
 	//primo ciclo for sulle righe di A
     for (int i=0; i<3; i++)
 		//secondo ciclo for sulle colonne di R
