@@ -110,8 +110,8 @@ copia_array(ID_expression,Array1,Array2) :-
  appartenenza(Equazione,Id,Posizione) :- (
 										  plus_commutativo(Equazione,Riferimento1,_,_,_)  ;
 										  times_commutativo(Equazione,Riferimento1,_,_,_) ;
-										  divide(Equazione,Riferimento1,Riferimento2,_,_)
-										  %DA FARE aggiungere gli altri operatori binari (mi scoccio)
+										 % divide(Equazione,Riferimento1,Riferimento2,_,_)
+										  %DA FARE aggiungere gli altri operatori binari 
 										 ),
 										 (
 										   appartenenza(Riferimento1,Id,Posizione);
@@ -150,10 +150,10 @@ copia_array(ID_expression,Array1,Array2) :-
 									  (
 										times_commutativo(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
 									  ) -> Oggetto_equivalente = times_commutativo(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
-									;
-									  (
-										divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
-									  ) -> Oggetto_equivalente = divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
+									%;
+									%  (
+									%	divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
+									%  ) -> Oggetto_equivalente = divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
 									).
 
 equivalenza(Equazione,Id1,Id1)  :- appartenenza(Equazione,Id1,right).
