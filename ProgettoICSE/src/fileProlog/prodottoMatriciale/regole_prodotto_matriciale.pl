@@ -49,7 +49,7 @@ cicli_for_compatibili(Matrice1,Matrice2,Matrice3,ID_CicloFor1,ID_CicloFor2,ID_Ci
 % UTILIZZATO IN: 
 % SERVE A: vero se valide tutte le ipotesi
 %#############################################################################################################
-prodotto_matriciale(Matrice1,Matrice2,Matrice3,ID_1,ID_2,ID_3):-
+prodotto_matriciale(Matrice1,Matrice2,Matrice3):-
     
 	% controllo Matrice1
 	array_var_def(Matrice1,Tipo,2,_,[DimRow_1,DimCol_1],Classe,Metodo),
@@ -115,35 +115,42 @@ prodotto_matriciale(Matrice1,Matrice2,Matrice3,ID_1,ID_2,ID_3):-
 	
 	% Verifico la control_dependence dei cilci for
 	control_dependence(ID_1, ID_2, prodottomatriciale_versione_1,main),
-	control_dependence(ID_2, ID_3, prodottomatriciale_versione_1,main).
+	control_dependence(ID_2, ID_3, prodottomatriciale_versione_1,main),
 	
-	%		cicli_for_compatibili(Matrice1,Matrice2,Matrice3,ID_For1,ID_For2,ID_For3),
-	%		%%verifico condizioni nel terzo cicloFor
-	%		variabile_ciclo_for(ID_For1,NomeVariabile_For1),
-	%		variabile_ciclo_for(ID_For2,NomeVariabile_For2),
-	%		variabile_ciclo_for(ID_For3,NomeVariabile_For3),
-	%		array_elem_inst(Expr,Matrice3,[NomeVariabile_For1,NomeVariabile_For2],_,_),
-	%		control_dependence(ID_For3,Expr,true,_,_),
-	%		plus_commutativo(Expr,Op1,Op2,Metodo,Classe),
-	%		array_elem_inst(Expr,Matrice3,[NomeVariabile_For1,NomeVariabile_For2],_,_),
-	%		times_commutativo(Op1,OpTimes1,OpTimes2,_,_),
-	%		( 
-	%			( 	
-	%				equivalenza(Expr,Variabile1,[Id_Array1,NomeVariabile_For1,NomeVariabile_For3]),
-	%				scalar_var_ref(OpTimes1,Variabile1)
-	%			)
-	%			;
-	%			array_elem_ref(OpTimes1,Matrice1,[NomeVariabile_For1,NomeVariabile_For3])
-	%				
-	%		)
-	%		,
-	%		( 
-	%			( 	
-	%				equivalenza(Expr,Variabile2,[Id_Array2,NomeVariabile_For3,NomeVariabile_For2]),
-	%				scalar_var_ref(OpTimes2,Variabile2)
-	%			)
-	%			;
-	%			array_elem_ref(OpTimes2,Matrice2,[NomeVariabile_For3,NomeVariabile_For2])
-	%		)			
-	%	.
+	% appA=a[i][z];
+	scalar_var_inst(Expr_1,AppA,Classe, Metodo),
+	array_elem_ref(Aref_1,Matrice1,[Variabile_1,Variabile_3]),
+	uguaglianza(Expr_1,Aref_1,Classe,Metodo),
+	control_dependence(ID_3, Expr_1, Classe,Metodo),
+	
+	% appB=b[z][j];
+	scalar_var_inst(Expr_2,AppB,Classe,Metodo),
+	array_elem_ref(Aref_2,Matrice2,[Variabile_3,Variabile_2]),
+	uguaglianza(Expr_2,Aref_2,Classe,Metodo),
+	control_dependence(ID_3, Expr_2, Classe,Metodo),
+	
+	% appMul=appA*appB;
+	scalar_var_inst(Expr_3,AppMul,Classe,Metodo),
+	scalar_var_ref(Vref_1,AppA),
+	scalar_var_ref(Vref_2,AppB),
+	times(Expr_3,Vref_1,Vref_2,Classe,Metodo),
+	control_dependence(ID_3, Expr_3, Classe,Metodo),
+	true_data_dependence(Expr_1, Expr_3),
+	true_data_dependence(Expr_2, Expr_3),
+	
+	% appC=c[i][j];
+	scalar_var_inst(Expr_4,AppC,Classe,Metodo),
+	array_elem_ref(Aref_3,Matrice3,[Variabile_1,Variabile_2]),
+	uguaglianza(Expr_4,Aref_3,Classe,Metodo),
+	control_dependence(ID_3, Expr_4, Classe,Metodo),
+	
+	% c[i][j]=appC+appMul;
+	array_elem_inst(Expr_5,Matrice3,[Variabile_1,Variabile_2],Classe,Metodo),
+	scalar_var_ref(Vref_3,AppC),
+	scalar_var_ref(Vref_4,AppMul),
+	plus(Expr_5,Vref_3,Vref_4,Classe,Metodo),
+	control_dependence(ID_3, Expr_5, Classe,Metodo),
+	true_data_dependence(Expr_3, Expr_5),
+	true_data_dependence(Expr_4, Expr_5).
+
 % -------------------------------------------------------------------------------------------------------------
