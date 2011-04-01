@@ -71,14 +71,17 @@ public class ProdottoMatriciale_versione_2 {
             {3, -1, 1}
             };
             */
+        int i;
+        int j;
+        int k;
 	//primo ciclo for sulle righe di A
-    for (int i=0; i<3; i++)
+    for (i=0; i<3; i++)
 		//secondo ciclo for sulle colonne di R
-        for (int j=0; j<3; j++) {
+        for (j=0; j<3; j++) {
             R[i][j]=0;
             //terzo cilco for sulle colonne di B
-			for (int k=0; k<3; k++)
-                R[i][j] += A[i][k] * B[k][j];
+			for (k=0; k<3; k++)
+                R[i][j] = R[i][j] + A[i][k] * B[k][j];
         }
 
 
