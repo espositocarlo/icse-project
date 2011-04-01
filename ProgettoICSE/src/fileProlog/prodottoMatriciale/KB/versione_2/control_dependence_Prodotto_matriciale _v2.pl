@@ -8,7 +8,7 @@
 %            //terzo cilco for sulle colonne di B
 %			for (int k=0; k<3; k++) % è il ciclo for 11
 	control_dependence(13, 11, prodottomatriciale_versione_2,main).
-%                R[i][j] += A[i][k] * B[k][j]; % è expr_11
+%                R[i][j] = R[i][j] + A[i][k] * B[k][j]; % è expr_11
 	control_dependence(11, expr_11, prodottomatriciale_versione_2,main).
 %        }
 %

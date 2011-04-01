@@ -109,7 +109,8 @@ copia_array(ID_expression,Array1,Array2) :-
 
  appartenenza(Equazione,Id,Posizione) :- (
 										  plus_commutativo(Equazione,Riferimento1,_,_,_)  ;
-										  times_commutativo(Equazione,Riferimento1,_,_,_) ;
+										  times_commutativo(Equazione,Riferimento1,_,_,_) 
+										  %;
 										 % divide(Equazione,Riferimento1,Riferimento2,_,_)
 										  %DA FARE aggiungere gli altri operatori binari 
 										 ),
