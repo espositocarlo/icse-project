@@ -1,0 +1,56 @@
+verifica correttezza SINTATTICA dei file con le regole prolog.
+
+var_inst/4  					ok.
+inst/4	 					ok.
+inst_in_exp/4			    		ok.
+inst_in_exp/5					ok.
+inst_in_exp_notcheck_subexps/5          	ok.
+sub_exp_in_exp/4				ok.
+exp_in_stm/3					ERROR: Undefined procedure: assign_r/5 ma esiste assign_r/6
+inherit_dep/2					ERROR: between/3: Arguments are not sufficiently instantiated
+assert_ifnotalready/1 				ERROR: clause/2: Arguments are not sufficiently instantiated
+asserisci/1	 				ERROR: clause/2: Arguments are not sufficiently instantiated
+dep_chain/5					ERROR: chained/6: Undefined procedure: assign_r/5
+chained/6					ERROR: chained/6: Undefined procedure: assign_r/5
+elem_update_r/3					ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+elem_shift_r/3					ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+inst_descent_of_mul_or_leftdiv_unique/5 			ok.
+inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique/5 	ok.
+inst_descent_of_and_or_or_unique/5				ok.
+inst_descent_of_xor_unique/5					ok.
+inst_descent_of_modulo_unique/5			 		ok.
+exp_composed_of_add/3						ok. 
+exp_composed_of_divide/3 					ok.
+exp_composed_of_minus/3						ok.
+exp_composed_of_and/3						ok.
+exp_composed_of_or/3						ok.
+exp_composed_of_xor/3						ok.
+exp_composed_of_mul/3						ok. 
+exp_descent_of_divide/4						ok.
+exp_descent_of_and/4						ok.
+exp_descent_of_or/4						ok.
+exp_descent_of_xor/4						ok.
+exp_descent_of_modulo/4						ok.
+exp_descent_of_add_or_leftminus/4				ok.
+exp_descent_of_mul/4						ok.
+simple_scan/10							ok.
+strip_mined_scan/10						ok.
+inherit_dep_strip_mined_scan/2		ERROR: between/3: Arguments are not sufficiently instantiated
+array_update_values_r/5			ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+array_shift_values_r/5			ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+shift_reduction_r/4			ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+nonsimul_relaxation_step_r/3		ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+dot_product_r/5				ERROR: asserta/1: No permission to modify static_procedure `elem_update_r/3'
+array_updated_from_temp_var_in_count_loop_r/8		ERROR: Undefined procedure: scal_var_inst/2
+matrix_vector_multiply_r/11				ERROR: Undefined procedure: scalar_product_r/9
+swap_r/7						ERROR: Undefined procedure: assign_r/5
+array_inversion_r/3					ERROR: swap_r/7: Undefined procedure: assign_r/5
+array_sort_r/3						ERROR: swap_r/7: Undefined procedure: assign_r/5
+nested_for_r/2 						ERROR: Undefined procedure: control_dep/5
+count_loop_r/5						ERROR: Arguments are not sufficiently instantiated
+scalar_map_r/1						ERROR: Undefined procedure: assign_r/5
+scalar_array_reduction_r/2				ERROR: Undefined procedure: assign_r/5
+basic_linear_induction_variable_r/2			ERROR: Undefined procedure: assign_r/5
+basic_geometric_induction_variable_r/2			ERROR: Undefined procedure: assign_r/5
+basic_polynomial_induction_variable_r/3			ERROR: Undefined procedure: assign_r/5
+polynomial_induction_variable_r/3			ERROR: Undefined procedure: while_r/5

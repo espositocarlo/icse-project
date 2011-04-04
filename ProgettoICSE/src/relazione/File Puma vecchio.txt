@@ -1,0 +1,1272 @@
+TRAFO	TraverseSyntaxTree
+
+TREE	Tree
+
+PUBLIC	TraverseSyntaxTree
+
+GLOBAL 
+{
+
+		# include "definizioni.h"
+		
+		char * tipo;
+		char * visibilita;
+		char * ident_method;
+		char * ident_syn;
+		char * ident_class;
+		char * ident_extends;
+		char * ident_interfaces;
+		FILE * syntree;
+		
+		int modifier_syn;
+		int dim_array_syn;
+		int ID_syn;
+
+}
+
+PROCEDURE TraverseSyntaxTree (Tree) 				//		writed by Cristina Viola		// 
+
+nocompilation_unit () :-
+   .
+compilation_unit (pos := pos, annotation_list := annotation_list, modifiers := modifiers, package := package: expression, import_list := import_list, field_list := field_list, package_path := package_path, no_lines := no_lines, no_empty_lines := no_empty_lines, no_comments := no_comments, no_comment_lines := no_comment_lines, comment_list := comment_list) :-
+
+		syntree=fopen(FILE_SYNTREE,"a");
+ 
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (package);
+   TraverseSyntaxTree (import_list);
+   TraverseSyntaxTree (field_list);
+   TraverseSyntaxTree (comment_list);
+   .
+compilation_unit_list () :-
+   .
+noimport () :-
+   .
+import (next := next: import_list, qualified_symbol := qualified_symbol) :-
+   TraverseSyntaxTree (qualified_symbol);
+   TraverseSyntaxTree (next);
+   .
+import_on_demand (next := next: import_list, qualified_symbol := qualified_symbol, pos := pos) :-
+   TraverseSyntaxTree (qualified_symbol);
+   TraverseSyntaxTree (next);
+   .
+static_import (next := next: import_list, qualified_symbol := qualified_symbol) :-
+   TraverseSyntaxTree (qualified_symbol);
+   TraverseSyntaxTree (next);
+   .
+static_import_on_demand (next := next: import_list, qualified_symbol := qualified_symbol, pos := pos) :-
+   TraverseSyntaxTree (qualified_symbol);
+   TraverseSyntaxTree (next);
+   .
+import_c (next := next: import_list, qualified_symbol := qualified_symbol) :-
+   TraverseSyntaxTree (qualified_symbol);
+   TraverseSyntaxTree (next);
+   .
+import_list () :-
+   .
+nofield () :-
+   .
+method (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, decl_list := decl_list, throws := throws: type_name_list, statement_list := statement_list, type_param_list := type_param_list, type := typ) :-
+		ident_method=GetCStr(ident); 	
+		
+   	
+   			IF typ ?= simple_type(...) THEN
+   			{
+						if(typ->simple_type.type==1)tipo="boolean";
+						if(typ->simple_type.type==2)tipo="byte";
+						if(typ->simple_type.type==3)tipo="char";
+						if(typ->simple_type.type==4)tipo="double";
+						if(typ->simple_type.type==5)tipo="float";
+						if(typ->simple_type.type==6)tipo="int";
+						if(typ->simple_type.type==7)tipo="long";
+						if(typ->simple_type.type==8)tipo="short";
+						if(typ->simple_type.type==9)tipo="void";
+						if(typ->simple_type.type==10)tipo="null";
+				};
+				END
+				IF typ ?= named_type(...) THEN
+						tipo="String";
+				END
+				{	
+						if(modifiers==1 || modifiers==0)visibilita="public";
+						if(modifiers==2)visibilita="private";
+						if(modifiers==4)visibilita="protected";
+						if(modifiers==8)visibilita="static";
+						if(modifiers==16)visibilita="final";
+						if(modifiers==32)visibilita="synchronized";
+						if(modifiers==64)visibilita="volatile";
+						if(modifiers==128)visibilita="transient";
+						if(modifiers==256)visibilita="native";
+						if(modifiers==512)visibilita="interface";
+						if(modifiers==1024)visibilita="abstract";
+						if(modifiers==2048)visibilita="strict";
+				};
+				
+				fprintf(syntree,"method(%s,%s,%s,%s).\n",GetCStr(ident),ident_class,visibilita,tipo);
+						
+				TraverseSyntaxTree (annotation_list);
+   			TraverseSyntaxTree (decl_list);
+   			TraverseSyntaxTree (throws);
+   			TraverseSyntaxTree (statement_list);
+   			TraverseSyntaxTree (type_param_list);
+   			TraverseSyntaxTree (typ);
+   			TraverseSyntaxTree (next);
+   .
+   
+constructor (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, decl_list := decl_list, throws := throws: type_name_list, statement_list := statement_list, type_param_list := type_param_list) :-
+   ident_method=GetCStr(ident);
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (decl_list);
+   TraverseSyntaxTree (throws);
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (type_param_list);
+   TraverseSyntaxTree (next);
+   .
+   
+function (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, decl_list := decl_list, throws := throws: type_name_list, statement_list := statement_list, type_param_list := type_param_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (decl_list);
+   TraverseSyntaxTree (throws);
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (type_param_list);
+   TraverseSyntaxTree (next);
+   .
+   
+class_ (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := iden, pos := pos, javadoc := javadoc, comment_list := comment_list, block := block: field_list, type_param_list := type_param_list, extends := extends: type, interfaces := interfaces: type_name_list) :-
+		ident_class = GetCStr(iden);
+   	{
+				if(modifiers==1 || modifiers==0)visibilita="public";
+				if(modifiers==2)visibilita="private";
+				if(modifiers==4)visibilita="protected";
+				if(modifiers==8)visibilita="static";
+				if(modifiers==16)visibilita="final";
+				if(modifiers==32)visibilita="synchronized";
+				if(modifiers==64)visibilita="volatile";
+				if(modifiers==128)visibilita="transient";
+				if(modifiers==256)visibilita="native";
+				if(modifiers==512)visibilita="interface";
+				if(modifiers==1024)visibilita="abstract";
+				if(modifiers==2048)visibilita="strict";
+    };
+		IF extends ?= named_type(...) THEN
+		{
+				ident_extends=GetCStr(extends->named_type.qualified_symbol->ident.ident);
+		};
+		END
+		IF interfaces ?= notype_name(...) THEN
+		ELSE
+		{
+				ident_interfaces=GetCStr(interfaces->type_name.named_type->named_type.qualified_symbol->ident.ident);
+		};
+		END
+		fprintf(syntree,"class(%s,%s,%s,%s).\n",ident_class,visibilita,ident_extends,ident_interfaces);	
+
+ TraverseSyntaxTree (annotation_list);
+ TraverseSyntaxTree (block);
+ TraverseSyntaxTree (type_param_list);
+ TraverseSyntaxTree (extends);
+ TraverseSyntaxTree (interfaces);
+ TraverseSyntaxTree (next);
+   .
+   
+enum_type (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, block := block: field_list, interfaces := interfaces: type_name_list, enum_list := enum_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (interfaces);
+   TraverseSyntaxTree (enum_list);
+   TraverseSyntaxTree (next);
+   .
+   
+interface (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, block := block: field_list, type_param_list := type_param_list, extends := extends: type_name_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (type_param_list);
+   TraverseSyntaxTree (extends);
+   TraverseSyntaxTree (next);
+   .
+   
+annotation_type (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, block := block: field_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (next);
+   .
+   
+type_decl (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, block := block: field_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (next);
+   .
+   
+annotation_member (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list, type := type, expression := expression) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (type);
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+   
+named_field (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, javadoc := javadoc, comment_list := comment_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (next);
+   .
+   
+var_decl (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, type := type, decl_list := decl_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (type);
+   TraverseSyntaxTree (decl_list);
+   TraverseSyntaxTree (next);
+   .
+   
+initializer (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, statement_list := statement_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (next);
+   .
+   
+field (next := next: field_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (next);
+   .
+   
+field_list () :-
+   .
+nodecl () :-
+   .
+variable (next := next: decl_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, type := type, ident := iden, pos := pos, expression := expression, javadoc := javadoc) :-
+
+   		ident_syn=GetCStr(iden); 
+   		modifier_syn=modifiers;
+
+
+			IF expression ?= int_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,int,%d,%s,null).\n",ID_syn,expression->int_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,int,%d,%s,%s).\n",ID_syn,expression->int_literal.value,ident_class,ident_method);
+				END
+			END   		
+			IF expression ?= long_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,long,%ld,%s,null).\n",ID_syn,expression->long_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,long,%ld,%s,%s).\n",ID_syn,expression->long_literal.value,ident_class,ident_method);
+				END
+			END   		
+			IF expression ?= bool_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,bool,%s,%s,null).\n",ID_syn,expression->bool_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,bool,%s,%s,%s).\n",ID_syn,expression->bool_literal.value,ident_class,ident_method);
+				END
+			END   		
+			IF expression ?= float_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,float,%g,%s,null).\n",ID_syn,expression->float_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,float,%g,%s,%s).\n",ID_syn,expression->float_literal.value,ident_class,ident_method);
+				END
+			END   		
+			IF expression ?= double_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,double,%g,%s,null).\n",ID_syn,expression->double_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,double,%g,%s,%s).\n",ID_syn,expression->double_literal.value,ident_class,ident_method);
+				END
+			END   		
+			IF expression ?= char_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,double,%c,%s,null).\n",ID_syn,expression->char_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,double,%c,%s,%s).\n",ID_syn,expression->char_literal.value,ident_class,ident_method);
+				END
+			END   		
+			IF expression ?= string_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+					fprintf(syntree,"val_inst(%d,string,%s,%s,null).\n",ID_syn,expression->string_literal.value,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+					fprintf(syntree,"val_inst(%d,string,%s,%s,%s).\n",ID_syn,expression->string_literal.value,ident_class,ident_method);
+				END
+			END   		
+
+			IF expression ?= aggregate_expr(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"array_elem_inst(%s,%d,null,%s,null).\n",ident_syn,ID_syn,ident_class);
+				ELSE
+					fprintf(syntree,"array_elem_inst(%s,%d,null,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+				END
+			END
+			IF expression ?= ident(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",ident_syn,ID_syn,ident_class);
+				ELSE
+					fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",ident_syn,ID_syn,ident_class,ident_method);
+				END
+			END  
+
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (type);
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+
+parameter (next := next: decl_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, type := typ, ident := ident, pos := pos, vararg := vararg) :-
+
+		IF typ ?= simple_type(...) THEN
+		{
+				if(typ->simple_type.type==1)tipo="boolean";
+				if(typ->simple_type.type==2)tipo="byte";
+				if(typ->simple_type.type==3)tipo="char";
+				if(typ->simple_type.type==4)tipo="double";
+				if(typ->simple_type.type==5)tipo="float";
+				if(typ->simple_type.type==6)tipo="int";
+				if(typ->simple_type.type==7)tipo="long";
+				if(typ->simple_type.type==8)tipo="short";
+				if(typ->simple_type.type==9)tipo="void";
+				if(typ->simple_type.type==10)tipo="null";
+		};
+		END
+		IF typ ?= named_type(...) THEN
+				tipo="String";
+		END
+
+		IF strcmp(ident_method,(ident_class))==0 THEN
+				fprintf(syntree,"constructor(%s,%s,%s).\n",ident_method,GetCStr(ident),tipo);   	
+
+		ELSE 
+				fprintf(syntree,"parameter(%s,%s,%s).\n",ident_method,GetCStr(ident),tipo);
+		END
+
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (typ);
+   TraverseSyntaxTree (next);
+   .
+decl (next := next: decl_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, type := type, ident := ident, pos := pos) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (type);
+   TraverseSyntaxTree (next);
+   .
+decl_list () :-
+   .
+nostatement () :-
+   .
+compound_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, statement_list := statement_list) :-   
+   {
+   	tTree cd_source_comp;
+   };
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (next);
+   .
+
+expression_stmt (ID := ID, stmt_info := s_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression) :-
+   {
+   	tTree cd_source_expr;
+		ID_syn=ID;
+		};
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+
+var_decl_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, annotation_list := annotation_list, modifiers := modifiers, type := type, decl_list := decl_list) :-
+   {
+	ID_syn=ID;
+	 };
+ 
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (decl_list);
+   TraverseSyntaxTree (next);
+   .
+
+type_decl_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, type_decl := type_decl) :-
+   TraverseSyntaxTree (type_decl);
+   TraverseSyntaxTree (next);
+   .
+
+if_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression, then := then: statement_list, Else := Else: statement_list) :-
+   	{
+		tTree cf_source_if;tTree cd_source_if;tTree cd_source_else;tTree cd_source_then;
+		int verifica;
+		
+		
+		verifica=0;
+		
+		
+		
+		ID_syn=ID;
+		};
+   
+   TraverseSyntaxTree (expression);
+
+   
+   TraverseSyntaxTree (Else);
+   
+   
+   TraverseSyntaxTree (then);
+   
+   
+.
+
+while_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression, statement_list := statement_list) :-
+{
+	tTree cf_source_while,cd_source_while;
+	
+};
+{
+	ID_syn=ID;
+	
+};
+TraverseSyntaxTree (expression);
+TraverseSyntaxTree (statement_list);
+
+
+   
+TraverseSyntaxTree (next);
+   .
+
+do_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, statement_list := statement_list, expression := expression) :-
+   {
+   	tTree cd_source_do;
+
+   };
+{
+	ID_syn=ID;
+};
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (statement_list);
+   
+   
+   TraverseSyntaxTree (next);
+   .
+
+break_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression) :-
+   {
+   	tTree cd_source_break;
+   };
+
+	ID_syn=ID;
+	
+
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+
+continue_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression) :-
+   {
+   	tTree cd_source_cont;
+   };
+	ID_syn=ID;
+	
+	
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+
+return_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression) :-
+   {
+   	tTree cd_source_ret;
+   	
+  };
+ID_syn=ID;
+
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+
+for_stmt (ID := IDfor, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, for_init := for_init: statement_list, expression := expressio, for_incr := for_incr: statement_list, statement_list := statement_lis) :-
+   {
+   	tTree cf_source_for,cd_source_for;
+
+     };
+ID_syn=IDfor;
+
+	
+   TraverseSyntaxTree (expressio);
+   
+   TraverseSyntaxTree (statement_lis);
+	
+   
+   
+   TraverseSyntaxTree (next);
+  					  
+ 
+   .
+
+foreach_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, var_decl := var_decl: statement_list, expression := expression, statement_list := statement_list) :-
+   {
+	tTree cf_source_foreach,cd_source_foreach;
+
+   };
+   TraverseSyntaxTree (var_decl);
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (statement_list);
+   
+   TraverseSyntaxTree (next);
+   .
+
+throw_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+
+synchronized_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression, statement_list := statement_list) :-
+  
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (next);
+{
+	ID_syn=ID;
+	
+};
+   .
+
+labeled_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, ident := ident, pos := pos, statement_list := statement_list) :-
+{
+	ID_syn=ID;
+};
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (next);   
+   .
+
+try_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, statement_list := statement_list, catch_list := catch_list, finally := finally: statement_list) :-
+{
+	tTree cf_source_try,cd_source_try;
+	
+	
+};
+	 ID_syn=ID;
+	
+	
+TraverseSyntaxTree (catch_list);
+TraverseSyntaxTree (finally);
+TraverseSyntaxTree (statement_list);
+
+TraverseSyntaxTree (next);
+.
+
+switch_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression, switch_list := switch_list) :-
+   {
+   	
+   	tTree cd_source_switch1;
+
+   };
+   	
+{
+ID_syn=ID;
+};
+
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (switch_list);
+   
+   
+   TraverseSyntaxTree (next);
+   .
+
+null_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos) :-
+   TraverseSyntaxTree (next);
+   .
+
+assert_stmt (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos, expression := expression, info := info: expression) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (info);
+   TraverseSyntaxTree (next);
+   .
+
+statement (ID := ID, stmt_info := stmt_info, next := next: statement_list, bpos := bpos, epos := epos) :-
+   TraverseSyntaxTree (next);
+   .
+statement_list () :-
+   .
+noswitch () :-
+   .
+switch_ (next := next: switch_list, expression_list := expression_list, statement_list := statement_list) :-   
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (next);
+   .
+
+switch_list () :-
+   .
+nocatch () :-
+   .
+catch_ (next := next: catch_list, decl_list := decl_list, statement_list := statement_list) :-
+   TraverseSyntaxTree (decl_list);
+   TraverseSyntaxTree (statement_list);
+   TraverseSyntaxTree (next);
+   .
+catch_list () :-
+   .
+notype_name () :-
+   .
+type_name (next := next: type_name_list, named_type := named_type: ref_type) :-
+   TraverseSyntaxTree (named_type);
+   TraverseSyntaxTree (next);
+   .
+type_name_list () :-
+   .
+notype_param () :-
+   .
+type_param (next := next: type_param_list, ident := ident, pos := pos, type_name_list := type_name_list) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (next);
+   .
+type_param_list () :-
+   .
+simple_type (type := type) :-
+{
+   	
+				if(type==1)tipo="boolean";
+				if(type==2)tipo="byte";
+				if(type==3)tipo="char";
+				if(type==4)tipo="double";
+				if(type==5)tipo="float";
+				if(type==6)tipo="int";
+				if(type==7)tipo="long";
+				if(type==8)tipo="short";
+		
+
+				if(modifier_syn==1 || modifier_syn==0)visibilita="public";
+				if(modifier_syn==2)visibilita="private";
+				if(modifier_syn==4)visibilita="protected";
+				if(modifier_syn==8)visibilita="static";
+				if(modifier_syn==16)visibilita="final";
+				if(modifier_syn==32)visibilita="synchronized";
+				if(modifier_syn==64)visibilita="volatile";
+				if(modifier_syn==128)visibilita="transient";
+				if(modifier_syn==256)visibilita="native";
+				if(modifier_syn==512)visibilita="interface";
+				if(modifier_syn==1024)visibilita="abstract";
+				if(modifier_syn==2048)visibilita="strict";
+
+				if(type<=8)
+				{
+						if(strcmp(ident_syn,(""))!=0 )
+						{
+								if ( strcmp(ident_method, (""))==0 )
+								{
+										fprintf(syntree,"scalar_var_def(%s,%d,%s,%s,%s,null).\n",ident_syn,ID_syn,tipo,visibilita,ident_class);
+								}
+								else
+								{
+										fprintf(syntree,"scalar_var_def(%s,%d,%s,%s,%s,%s).\n",ident_syn,ID_syn,tipo,visibilita,ident_class,ident_method);
+								}
+						}
+   			}
+};
+.
+   
+array_type (bpos := bpos, epos := epos, type := typ, expression := expression) :-
+   TraverseSyntaxTree (typ);
+   TraverseSyntaxTree (expression);
+   .
+named_type (qualified_symbol := qualified_symbol) :-   
+{
+		if(modifier_syn==1 || modifier_syn==0)visibilita="public";
+		if(modifier_syn==2)visibilita="private";
+		if(modifier_syn==4)visibilita="protected";
+		if(modifier_syn==8)visibilita="static";
+		if(modifier_syn==16)visibilita="final";
+		if(modifier_syn==32)visibilita="synchronized";
+		if(modifier_syn==64)visibilita="volatile";
+		if(modifier_syn==128)visibilita="transient";
+		if(modifier_syn==256)visibilita="native";
+		if(modifier_syn==512)visibilita="interface";
+		if(modifier_syn==1024)visibilita="abstract";
+		if(modifier_syn==2048)visibilita="strict";
+};
+   	
+		IF strcmp(ident_syn,(""))!=0 THEN
+			IF qualified_symbol ?= ident(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"scalar_var_def(%s,%d,%s,%s,%s,null).\n",ident_syn,ID_syn,GetCStr(qualified_symbol->ident.ident),visibilita,ident_class);   	
+				ELSE
+					  fprintf(syntree,"scalar_var_def(%s,%d,%s,%s,%s,%s).\n",ident_syn,ID_syn,GetCStr(qualified_symbol->ident.ident),visibilita,ident_class,ident_method);   	
+				END
+			END
+		END
+   TraverseSyntaxTree (qualified_symbol);
+   .
+wildcard () :-
+   .
+wildcard_upb (ref_type := ref_type) :-
+   TraverseSyntaxTree (ref_type);
+   .
+wildcard_lwb (ref_type := ref_type) :-
+   TraverseSyntaxTree (ref_type);
+   .
+wildcard_type () :-
+   .
+ref_type () :-
+   .
+notype () :-
+   .
+declared_type (type := type) :-
+   .
+type () :-
+   .
+noenum () :-
+   .
+enum_ (next := next: enum_list, annotation_list := annotation_list, modifiers := modifiers, ident := ident, pos := pos, expression_list := expression_list, field_list := field_list) :-
+   TraverseSyntaxTree (annotation_list);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (field_list);
+   TraverseSyntaxTree (next);
+   .
+enum_list () :-
+   .
+noannotation () :-
+   .
+annotation (next := next: annotation_list, qualified_symbol := qualified_symbol, expression_list := expression_list) :-
+   TraverseSyntaxTree (qualified_symbol);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (next);
+   .
+annotation_list () :-
+   .
+noexpression () :-
+   .
+expression_e (next := next: expression_list, expression := expression) :-
+
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+pair (next := next: expression_list, ident := ident, pos := pos, expression := expression) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (next);
+   .
+expression_l (next := next: expression_list) :-
+   TraverseSyntaxTree (next);
+   .
+expression_list () :-
+   .
+no_expr () :-
+   .
+qualification (bpos := bpos, epos := epos, ident := ident, pos := pos, qualified_symbol := qualified_symbol) :-
+   TraverseSyntaxTree (qualified_symbol);
+   .
+ident (bpos := bpos, epos := epos, ident := ident) :-
+   .
+generic_member (bpos := bpos, epos := epos, ident := ident, type_name_list := type_name_list, pos := pos, qualified_symbol := qualified_symbol) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (qualified_symbol);
+   .
+generic_ident (bpos := bpos, epos := epos, ident := ident, type_name_list := type_name_list) :-
+   TraverseSyntaxTree (type_name_list);
+   .
+generic_type (bpos := bpos, epos := epos, ident := ident, type_name_list := type_name_list) :-
+   TraverseSyntaxTree (type_name_list);
+   .
+qualified_symbol (bpos := bpos, epos := epos, ident := ident) :-
+   .
+unary_expr (bpos := bpos, epos := epos, expression := expression: expression_c, Operator := Operator, pos := pos) :-
+   TraverseSyntaxTree (expression);
+   .
+   
+binary_expr (bpos := bpos, epos := epos, lop := lop: expression_c, rop := rop: expression_c, Operator := Operator, pos := pos) :-
+	
+   TraverseSyntaxTree (lop);
+   TraverseSyntaxTree (rop);
+   .
+
+assign_expr (bpos := bpos, epos := epos, lval := lval: expression_c, rval := rval: expression_c, Operator := Operator, pos := pos) :-
+
+	
+		IF lval ?= ident (...)THEN
+   			IF rval ?= int_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,int,%d,%s,null).\n",ID_syn,rval->int_literal.value,ident_class);
+						ELSE
+								
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,int,%d,%s,%s).\n",ID_syn,rval->int_literal.value,ident_class,ident_method);
+		   			END	   			
+	   		END
+   			IF rval ?= long_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,long,%ld,%s,null).\n",ID_syn,rval->long_literal.value,ident_class);
+						ELSE
+								
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,long,%ld,%s,%s).\n",ID_syn,rval->long_literal.value,ident_class,ident_method);
+		   			END	   			
+   			END
+ 				IF rval ?= bool_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,bool,%s,%s,null).\n",ID_syn,rval->bool_literal.value,ident_class);
+						ELSE
+								
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,bool,%s,%s,%s).\n",ID_syn,rval->bool_literal.value,ident_class,ident_method);
+	   				END	   			
+	   		END
+   			IF rval ?= float_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,float,%g,%s,null).\n",ID_syn,rval->float_literal.value,ident_class);
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,float,%g,%s,%s).\n",ID_syn,rval->float_literal.value,ident_class,ident_method); 
+	   				END	   			
+	   		END
+   			IF rval ?= double_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,double,%lg,%s,null).\n",ID_syn,rval->double_literal.value,ident_class);
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,double,%lg,%s,%s).\n",ID_syn,rval->double_literal.value,ident_class,ident_method);
+	   				END	   			
+	   		END
+   			IF rval ?= char_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,char,%c,%s,null).\n",ID_syn,rval->char_literal.value,ident_class);
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,char,%c,%s,%s).\n",ID_syn,rval->char_literal.value,ident_class,ident_method);
+	   				END	   			
+	   		END
+   			IF rval ?= string_literal(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);
+								fprintf(syntree,"val_inst(%d,string,%s,%s,null).\n",ID_syn,rval->string_literal.value,ident_class);
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);
+								fprintf(syntree,"val_inst(%d,string,%s,%s,%s).\n",ID_syn,rval->string_literal.value,ident_class,ident_method);
+	   				END	   			
+	   		END
+   			IF rval ?= ident(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);   	
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);   	
+						END
+	   		END	   			   		
+   			IF rval ?= binary_expr(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);   	
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);   	
+						END
+	   		END	   			   		
+   			IF rval ?= unary_expr(...) THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,null).\n",GetCStr(lval->ident.ident),ID_syn,ident_class);   	
+						ELSE
+								fprintf(syntree,"scalar_var_inst(%s,%d,%s,%s).\n",GetCStr(lval->ident.ident),ID_syn,ident_class,ident_method);   	
+						END
+	   		END
+	  ELSE
+	  /////////////////////////
+	     	IF rval ?= int_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,int,%d,%s,null).\n",ID_syn,rval->int_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,int,%d,%s,%s).\n",ID_syn,rval->int_literal.value,ident_class,ident_method);
+	  		END	   			
+	  END
+   	IF rval ?= long_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,long,%ld,%s,null).\n",ID_syn,rval->long_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,long,%ld,%s,%s).\n",ID_syn,rval->long_literal.value,ident_class,ident_method); 
+	  		END	   			
+	  END
+   	IF rval ?= bool_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,bool,%s,%s,null).\n",ID_syn,rval->bool_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,bool,%s,%s,%s).\n",ID_syn,rval->bool_literal.value,ident_class,ident_method);
+	  		END	   			
+   	END
+ 		IF rval ?= float_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,float,%g,%s,null).\n",ID_syn,rval->float_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,float,%g,%s,%s).\n",ID_syn,rval->float_literal.value,ident_class,ident_method);
+	  		END	   			
+	  END
+   	IF rval ?= double_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,double,%lg,%s,null).\n",ID_syn,rval->double_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,double,%lg,%s,%s).\n",ID_syn,rval->double_literal.value,ident_class,ident_method);
+	  		END	   			
+   	END
+ 		IF rval ?= char_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,char,%c,%s,null).\n",ID_syn,rval->char_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,char,%c,%s,%s).\n",ID_syn,rval->char_literal.value,ident_class,ident_method);
+	  		END	   			
+   	END
+ 		IF rval ?= string_literal(...) THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						fprintf(syntree,"val_inst(%d,string,%s,%s,null).\n",ID_syn,rval->string_literal.value,ident_class);
+				ELSE
+						fprintf(syntree,"val_inst(%d,string,%s,%s,%s).\n",ID_syn,rval->string_literal.value,ident_class,ident_method);
+	  		END	   			
+	  END
+
+  			   		
+   	END
+ 		IF lval ?= subscript_expr(base := ident(...))THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						IF lval ?= subscript_expr(index := int_literal(...)) THEN
+								
+								fprintf(syntree,"array_elem_inst(%s,%d,%d,%s,null).\n",GetCStr(lval->subscript_expr.base->ident.ident),ID_syn,lval->subscript_expr.index->int_literal.value,ident_class);
+						END
+						IF lval ?= subscript_expr(index := ident(...)) THEN
+								
+								fprintf(syntree,"array_elem_inst(%s,%d,%s,%s,null).\n",GetCStr(lval->subscript_expr.base->ident.ident),ID_syn,GetCStr(lval->subscript_expr.index->ident.ident),ident_class);
+						END
+				ELSE
+						IF lval ?= subscript_expr(index := int_literal(...)) THEN
+								
+								fprintf(syntree,"array_elem_inst(%s,%d,%d,%s,%s).\n",GetCStr(lval->subscript_expr.base->ident.ident),ID_syn,lval->subscript_expr.index->int_literal.value,ident_class,ident_method);
+						END
+						IF lval ?= subscript_expr(index := ident(...)) THEN
+								
+								fprintf(syntree,"array_elem_inst(%s,%d,%s,%s,%s).\n",GetCStr(lval->subscript_expr.base->ident.ident),ID_syn,GetCStr(lval->subscript_expr.index->ident.ident),ident_class,ident_method);
+						END
+				END
+		END
+   	IF lval ?= subscript_expr(base := subscript_expr(...))THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						IF lval ?= subscript_expr(index := ident(...)) THEN
+								IF lval ?= subscript_expr(base := subscript_expr(index := ident(...))) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%s,%s],%s,null).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,GetCStr(lval->subscript_expr.base->subscript_expr.index->ident.ident),GetCStr(lval->subscript_expr.index->ident.ident),ident_class);
+								END
+								IF lval ?= subscript_expr(base := subscript_expr(index := int_literal(...))) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%d,%s],%s,null).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,lval->subscript_expr.base->subscript_expr.index->int_literal.value,GetCStr(lval->subscript_expr.index->ident.ident),ident_class);
+								END						
+						END
+						IF lval ?= subscript_expr(base := subscript_expr(index := ident(...))) THEN
+								IF lval ?= subscript_expr( index := int_literal(...)) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%s,%d],%s,null).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,GetCStr(lval->subscript_expr.base->subscript_expr.index->ident.ident),lval->subscript_expr.index->int_literal.value,ident_class);
+								END						
+						END
+						IF lval ?= subscript_expr(index := int_literal(...)) THEN
+								IF lval ?= subscript_expr(base := subscript_expr(index := int_literal(...))) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%d,%d],%s,null).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,lval->subscript_expr.base->subscript_expr.index->int_literal.value,lval->subscript_expr.index->int_literal.value,ident_class);
+								END
+						END
+						IF lval ?= subscript_expr(index := ident(...)) THEN
+								IF lval ?= subscript_expr(base := subscript_expr(index := ident(...))) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%s,%s],%s,%s).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,GetCStr(lval->subscript_expr.base->subscript_expr.index->ident.ident),GetCStr(lval->subscript_expr.index->ident.ident),ident_class,ident_method);
+								END
+								IF lval ?= subscript_expr(base := subscript_expr(index := int_literal(...))) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%d,%s],%s,%s).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,lval->subscript_expr.base->subscript_expr.index->int_literal.value,GetCStr(lval->subscript_expr.index->ident.ident),ident_class,ident_method);
+								END						
+						END
+						IF lval ?= subscript_expr(base := subscript_expr(index := ident(...))) THEN
+								IF lval ?= subscript_expr(index := int_literal(...)) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%s,%d],%s,%s).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,GetCStr(lval->subscript_expr.base->subscript_expr.index->ident.ident),lval->subscript_expr.index->int_literal.value,ident_class,ident_method);
+								END						
+						END
+						IF lval ?= subscript_expr(index := int_literal(...)) THEN
+								IF lval ?= subscript_expr(base := subscript_expr(index := int_literal(...))) THEN
+										
+										fprintf(syntree,"array_elem_inst(%s,%d,[%d,%d],%s,%s).\n",GetCStr(lval->subscript_expr.base->subscript_expr.base->ident.ident),ID_syn,lval->subscript_expr.base->subscript_expr.index->int_literal.value,lval->subscript_expr.index->int_literal.value,ident_class,ident_method);
+								END
+						END
+				END
+		END				
+		///////////////////////////////////
+   	///////////////////////////////////
+   	
+   	// ---------->  inserimento nel'ELSE DI IF lval ?= ident (...)THEN
+   	
+   	///////////////////////////////////
+   	///////////////////////////////////
+	   	
+TraverseSyntaxTree (lval);
+TraverseSyntaxTree (rval);
+   .
+
+aggregate_expr (bpos := bpos, epos := epos, expression_list := expression_list) :-
+   TraverseSyntaxTree (expression_list);
+   .
+annotation_expr (bpos := bpos, epos := epos, annotation_list := annotation_list) :-
+   TraverseSyntaxTree (annotation_list);
+   .
+call_expr (bpos := bpos, epos := epos, expression := expressio: expression_c, expression_list := expression_lis) :-
+   TraverseSyntaxTree (expressio);
+   TraverseSyntaxTree (expression_lis);
+   .
+call_constr_expr (bpos := bpos, epos := epos, expression := expression: expression_c, expression_list := expression_list) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (expression_list);
+   .
+select_expr (bpos := bpos, epos := epos, expression := expression: expression_c, type_name_list := type_name_list, ident := ident, pos := pos) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (type_name_list);
+   .
+get_class_expr (bpos := bpos, epos := epos, type := type) :-
+   TraverseSyntaxTree (type);
+   .
+get_object_expr (bpos := bpos, epos := epos, type := type) :-
+   TraverseSyntaxTree (type);
+   .
+subscript_expr (bpos := bpos, epos := epos, base := bas: expression_c, index := inde: expression_c) :-
+   IF bas ?= subscript_expr(...) THEN 
+   ELSE 
+   	TraverseSyntaxTree (bas);
+   END   	
+   TraverseSyntaxTree (inde);
+  .
+type_compare_expr (bpos := bpos, epos := epos, expression := expression: expression_c, type := type, pos := pos) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (type);
+   .
+type_cast_expr (bpos := bpos, epos := epos, type := type, expression := expression: expression_c) :-
+   TraverseSyntaxTree (type);
+   TraverseSyntaxTree (expression);
+   .
+new_expr (bpos := bpos, epos := epos, type_name_list := type_name_list, expression_list := expression_list, type := type: named_type) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (type);
+   .
+qualified_new_expr (bpos := bpos, epos := epos, type_name_list := type_name_list, expression_list := expression_list, expression := expression: expression_c, ident := ident, pos := pos, tnl2 := tnl2: type_name_list) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (tnl2);
+   .
+new_expr_c (bpos := bpos, epos := epos, type_name_list := type_name_list, expression_list := expression_list) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (expression_list);
+   .
+anonymous_expr (bpos := bpos, epos := epos, type_name_list := type_name_list, expression_list := expression_list, block := block: field_list, comment_list := comment_list, type := type: named_type) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (comment_list);
+   TraverseSyntaxTree (type);
+   .
+qualified_anonymous_expr (bpos := bpos, epos := epos, type_name_list := type_name_list, expression_list := expression_list, block := block: field_list, comment_list := comment_list, expression := expression: expression_c, ident := ident, pos := pos, tnl2 := tnl2: type_name_list) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (comment_list);
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (tnl2);
+   .
+anonymous_expr_c (bpos := bpos, epos := epos, type_name_list := type_name_list, expression_list := expression_list, block := block: field_list, comment_list := comment_list) :-
+   TraverseSyntaxTree (type_name_list);
+   TraverseSyntaxTree (expression_list);
+   TraverseSyntaxTree (block);
+   TraverseSyntaxTree (comment_list);
+   .
+new_array_expr (bpos := bpos, epos := epos, type := typ, expression := expressio) :-
+   //TraverseSyntaxTree (type);
+IF typ ?= array_type (type := array_type(...)) THEN
+   IF typ ?= array_type(type := array_type(type := simple_type(...))) THEN
+   {
+    		if(typ->array_type.type->array_type.type->simple_type.type==1)tipo="boolean";
+   			if(typ->array_type.type->array_type.type->simple_type.type==2)tipo="byte";
+   			if(typ->array_type.type->array_type.type->simple_type.type==3)tipo="char";
+   			if(typ->array_type.type->array_type.type->simple_type.type==4)tipo="double";
+   			if(typ->array_type.type->array_type.type->simple_type.type==5)tipo="float";
+   			if(typ->array_type.type->array_type.type->simple_type.type==6)tipo="int";
+   			if(typ->array_type.type->array_type.type->simple_type.type==7)tipo="long";
+   			if(typ->array_type.type->array_type.type->simple_type.type==8)tipo="short";
+   
+   			if(modifier_syn==1 || modifier_syn==0)visibilita="public";
+   			if(modifier_syn==2)visibilita="private";
+   			if(modifier_syn==4)visibilita="protected";
+   			if(modifier_syn==8)visibilita="static";
+   			if(modifier_syn==16)visibilita="final";
+   			if(modifier_syn==32)visibilita="synchronized";
+   			if(modifier_syn==64)visibilita="volatile";
+   			if(modifier_syn==128)visibilita="transient";
+   			if(modifier_syn==256)visibilita="native";
+   			if(modifier_syn==512)visibilita="interface";
+   			if(modifier_syn==1024)visibilita="abstract";
+   			if(modifier_syn==2048)visibilita="strict";
+   	
+   			if(strcmp(ident_syn,(""))!=0 )
+   			{
+   					if ( strcmp(ident_method, (""))==0 )
+   					{
+   							
+   							fprintf(syntree,"array_var_def(%s,%s,%d,%s,[[%d],[%d]],%s,null).\n",ident_syn,tipo,ID_syn,visibilita,typ->array_type.type->array_type.expression->int_literal.value, typ->array_type.expression->int_literal.value,ident_class);
+   					}
+   					else
+   					{
+   							
+   							fprintf(syntree,"array_var_def(%s,%s,%d,%s,[[%d],[%d]],%s,%s).\n",ident_syn,tipo,ID_syn,visibilita,typ->array_type.type->array_type.expression->int_literal.value, typ->array_type.expression->int_literal.value,ident_class,ident_method);
+   					}
+   			}
+		};
+    END
+    IF typ ?= array_type(type := array_type(type := named_type(...))) THEN
+		{
+	   		if(modifier_syn==1 || modifier_syn==0)visibilita="public";
+				if(modifier_syn==2)visibilita="private";
+				if(modifier_syn==4)visibilita="protected";
+				if(modifier_syn==8)visibilita="static";
+				if(modifier_syn==16)visibilita="final";
+				if(modifier_syn==32)visibilita="synchronized";
+				if(modifier_syn==64)visibilita="volatile";
+				if(modifier_syn==128)visibilita="transient";
+				if(modifier_syn==256)visibilita="native";
+				if(modifier_syn==512)visibilita="interface";
+				if(modifier_syn==1024)visibilita="abstract";
+				if(modifier_syn==2048)visibilita="strict";
+	  };
+		
+		IF strcmp( ident_syn,("") )!=0 THEN
+				IF strcmp(ident_method, (""))==0 THEN
+						
+						fprintf(syntree,"array_var_def(%s,%s,%d,%s,[[%d],[%d]],%s,null).\n",ident_syn,"String",ID_syn,visibilita,typ->array_type.type->array_type.expression->int_literal.value, typ->array_type.expression->int_literal.value,ident_class);
+				ELSE
+						
+						fprintf(syntree,"array_var_def(%s,%s,%d,%s,[[%d],[%d]],%s,%s).\n",ident_syn,"String",ID_syn,visibilita,typ->array_type.type->array_type.expression->int_literal.value, typ->array_type.expression->int_literal.value,ident_class,ident_method);
+				END
+				dim_array_syn=1;
+		END
+END
+ELSE
+		IF typ ?= array_type(type := simple_type(...)) THEN
+    {
+   			if(typ->array_type.type->simple_type.type==1)tipo="boolean";
+				if(typ->array_type.type->simple_type.type==2)tipo="byte";
+				if(typ->array_type.type->simple_type.type==3)tipo="char";
+				if(typ->array_type.type->simple_type.type==4)tipo="double";
+				if(typ->array_type.type->simple_type.type==5)tipo="float";
+				if(typ->array_type.type->simple_type.type==6)tipo="int";
+				if(typ->array_type.type->simple_type.type==7)tipo="long";
+				if(typ->array_type.type->simple_type.type==8)tipo="short";
+   
+				if(modifier_syn==1 || modifier_syn==0)visibilita="public";
+				if(modifier_syn==2)visibilita="private";
+				if(modifier_syn==4)visibilita="protected";
+				if(modifier_syn==8)visibilita="static";
+				if(modifier_syn==16)visibilita="final";
+				if(modifier_syn==32)visibilita="synchronized";
+				if(modifier_syn==64)visibilita="volatile";
+				if(modifier_syn==128)visibilita="transient";
+				if(modifier_syn==256)visibilita="native";
+				if(modifier_syn==512)visibilita="interface";
+				if(modifier_syn==1024)visibilita="abstract";
+				if(modifier_syn==2048)visibilita="strict";
+   	
+				if(strcmp(ident_syn,(""))!=0 )
+				{
+						if ( strcmp(ident_method, (""))==0 )
+						{
+								
+								fprintf(syntree,"array_var_def(%s,%s,%d,%s,[%d],%s,null).\n",ident_syn,tipo,ID_syn,visibilita,typ->array_type.expression->int_literal.value,ident_class);
+						}
+						else
+						{
+								
+								fprintf(syntree,"array_var_def(%s,%s,%d,%s,[%d],%s,%s).\n",ident_syn,tipo,ID_syn,visibilita,typ->array_type.expression->int_literal.value,ident_class,ident_method);
+						}
+				}
+		};
+		END
+		IF typ ?= array_type(type := named_type(...)) THEN
+		{
+	  		if(modifier_syn==1 || modifier_syn==0)visibilita="public";
+				if(modifier_syn==2)visibilita="private";
+				if(modifier_syn==4)visibilita="protected";
+				if(modifier_syn==8)visibilita="static";
+				if(modifier_syn==16)visibilita="final";
+				if(modifier_syn==32)visibilita="synchronized";
+				if(modifier_syn==64)visibilita="volatile";
+				if(modifier_syn==128)visibilita="transient";
+				if(modifier_syn==256)visibilita="native";
+				if(modifier_syn==512)visibilita="interface";
+				if(modifier_syn==1024)visibilita="abstract";
+				if(modifier_syn==2048)visibilita="strict";
+		};
+		
+				IF strcmp( ident_syn,("") )!=0 THEN
+						IF strcmp(ident_method, (""))==0 THEN
+								
+	   						fprintf(syntree,"array_var_def(%s,%s,%d,%s,[%d],%s,null).\n",ident_syn,"String",ID_syn,visibilita,typ->array_type.expression->int_literal.value,ident_class);
+						ELSE
+								
+	   						fprintf(syntree,"array_var_def(%s,%s,%d,%s,[%d],%s,%s).\n",ident_syn,"String",ID_syn,visibilita,typ->array_type.expression->int_literal.value,ident_class,ident_method);
+						END
+						dim_array_syn=1;
+				END   
+		END
+END   
+IF typ ?= array_type(...) THEN
+   	TraverseSyntaxTree (typ);
+END
+
+
+
+   .
+conditional_expr (bpos := bpos, epos := epos, condition := condition: expression_c, true_expr := true_expr: expression_c, false_expr := false_expr: expression_c) :-
+   TraverseSyntaxTree (condition);
+   TraverseSyntaxTree (true_expr);
+   TraverseSyntaxTree (false_expr);
+   .
+this_expr (bpos := bpos, epos := epos, type_name_list := type_name_list) :-
+   TraverseSyntaxTree (type_name_list);
+   .
+super_expr (bpos := bpos, epos := epos, expression := expression, type_name_list := type_name_list) :-
+   TraverseSyntaxTree (expression);
+   TraverseSyntaxTree (type_name_list);
+   .
+null_expr (bpos := bpos, epos := epos) :-
+   .
+int_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+long_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+bool_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+float_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+double_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+char_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+string_literal (bpos := bpos, epos := epos, value := value) :-
+   .
+literal (bpos := bpos, epos := epos) :-
+   .
+expression_c (bpos := bpos, epos := epos) :-
+   .
+expression () :-
+   .
+javadoc (summary := summary, author := author, deprecated := deprecated, param := param, return_ := return_, see := see, serial := serial, serialData := serialData, serialField := serialField, since := since, throws := throws, version := version, user_defined := user_defined) :-
+   .
+nocomment () :-
+   .
+comment (next := next: comment_list, text := text, bpos := bpos, epos := epos) :-
+   TraverseSyntaxTree (next);
+   .
+comment_list () :-
+   .

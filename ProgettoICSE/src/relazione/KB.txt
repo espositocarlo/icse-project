@@ -1,0 +1,90 @@
+
+% A
+and(Stp,Op1Stp,Op2Stp,Class,Method)
+and_and(   Stp,Op1Stp,Op2Stp,Class,Method)
+arr_el_inst(ArrayInstStp,ArrayIdent,SubScrList) 
+array_elem_inst(X,SameArrIdent,SubScrListX,Class,Method) 
+array_reference(ArrayVarName,VarStp,[IdentVarName],Class,Method) 
+array_sort(IdentArray) % questo viene assertato in array_sort_r
+array_var(ArrayIdent,ArrayType,NDim,ArrayRangesList) 
+assert_r(IDassert,Assert,Class,Method) 
+assign_r(ScanStm,HierScanStm,LhsExpStp,RhsExpStp) 
+assign_r(IDass,Assign,ExpStp,Class,Method)
+
+% B
+break_r(IDbreak,Break,Ident_label,Class,Method) %è presente solo una volta in "exp_in_stm"
+
+% C
+complement(X,OpX,Class,Method)
+control_dep(SottoConc1,AltroConc,DepBranch)
+control_dep(SottoConc1,AltroConc,DepBranch,Class,Method)
+
+% D
+data_dep(true,ElemUseStm,ElemDefStm,ElemIdent,DepLevel) %no kb
+divide(Stp,Op1Stp,Op2Stp,Class,Method)
+do_while_r(IDdo_while,X,Stp,Class,Method) %no kb
+
+% E
+equal( Stp,Op1Stp,Op2Stp,Class,Method)
+
+% F
+foreach_r(IDforeach,Foreach,ExpStp,VarDeclStp,Class,Method) %no kb
+
+% G
+greater(   Stp,Op1Stp,Op2Stp,Class,Method)
+greater_equal(       Stp,Op1Stp,Op2Stp,Class,Method)
+
+% I
+if_r(IDif,If,ExpStp,Class,Method)%è utilizzato solo 2 volte
+
+% L
+labeled_r(IDlabeled,Labeled,Ident_label,LoopStp) %presente solo 1 volta non si capisce
+left_shift(X,Op1X,Op2X,Class,Method)
+less(  Stp,Op1Stp,Op2Stp,Class,Method)
+less_equal(Stp,Op1Stp,Op2Stp,Class,Method)
+
+% M
+minus( Stp,Op1Stp,Op2Stp,Class,Method)
+modulo(Stp,Op1Stp,Op2Stp,Class,Method)
+
+% N
+not_equal( Stp,Op1Stp,Op2Stp,Class,Method)
+not_exp(X,OpX,Class,Method)
+
+% O
+or( Stp,Op1Stp,Op2Stp,Class,Method)
+or_or( Stp,Op1Stp,Op2Stp,Class,Method)
+
+% P
+plus(Stp,Op1Stp,Op2Stp,Class,Method)
+post_decr(X,OpX,Class,Method)
+post_incr(X,OpX,Class,Method)
+pre_decr(Stp,OpStp,Class,Method)
+pre_incr(X,OpX,Class,Method)
+
+% R
+right_shift(X,Op1X,Op2X,Class,Method)
+
+% S
+scalar_var_def(CntVarIdent,VarDefStp,Class,Method) 
+scal_var_inst(SubScrAddOp2,InIndexIdent)
+scalar_var_inst(X,SameIdent,Class,Method)
+sign_negate(Stp,OpStp,Class,Method)
+switch_r(IDswitch,Switch,Ident_label,Class,Method)% no kb
+
+% T
+times(Stp,Op1Stp,Op2Stp,Class,Method)
+
+% U
+unsigned_right_shift(X,Op1X,Op2X,Class,Method)
+
+% V
+var_inst(VarStp,VarIdent)
+val_inst(LastExpStp,integer,LastValueLB)
+val_inst(X,SameType,SameVal,Class,Method)
+
+% X
+xor(Stp,Op1Stp,Op2Stp,Class,Method)
+
+% W
+while_r(IDwhile,While,ExpStp,Class,Method)
