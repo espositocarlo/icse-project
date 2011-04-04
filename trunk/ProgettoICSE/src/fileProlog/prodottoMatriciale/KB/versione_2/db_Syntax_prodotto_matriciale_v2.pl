@@ -1,6 +1,6 @@
-array_var_def(a,double,2,def_list_1,[3,3],prodottomatriciale_versione_2,main).
-array_var_def(b,double,2,def_list_2,[3,3],prodottomatriciale_versione_2,main).
-array_var_def(r,double,2,def_list_3,[3,3],prodottomatriciale_versione_2,main).
+array_var_def(mat_a,double,2,def_list_1,[3,3],prodottomatriciale_versione_2,main).
+array_var_def(mat_b,double,2,def_list_2,[3,3],prodottomatriciale_versione_2,main).
+array_var_def(mat_r,double,2,def_list_3,[3,3],prodottomatriciale_versione_2,main).
 for_r(14,for(14,exit_114),init_3,exit_114,incr_4,prodottomatriciale_versione_2,main).
 scalar_var_def(i,init_3,prodottomatriciale_versione_2,main).
 scalar_var_inst(init_3,i,prodottomatriciale_versione_2,main).
@@ -22,7 +22,7 @@ constant_ref(cref_7,3).
 less(exit_113,vref_6,cref_7,prodottomatriciale_versione_2,main).
 scalar_var_ref(vref_8,j).
 post_incr(incr_6,vref_8,prodottomatriciale_versione_2,main).
-array_elem_inst(expr_8,r,[i,j],prodottomatriciale_versione_2,main).
+array_elem_inst(expr_8,mat_r,[i,j],prodottomatriciale_versione_2,main).
 constant_ref(cref_9,0).
 uguaglianza(expr_8,cref_9,prodottomatriciale_versione_2,main).
 %-----------------------------------------------------------------------
@@ -37,9 +37,9 @@ less(exit_111,vref_11,cref_12,prodottomatriciale_versione_2,main).
 scalar_var_ref(vref_13,k).
 post_incr(incr_9,vref_13,prodottomatriciale_versione_2,main).
 %-------------------------------------------------------------------------
-array_elem_inst(expr_11,r,[i,j],prodottomatriciale_versione_2,main).
-array_elem_ref(aref_14,r,[i,j]).
-array_elem_ref(aref_15,a,[i,k]).
-array_elem_ref(aref_16,b,[k,j]).
+array_elem_inst(expr_11,mat_r,[i,j],prodottomatriciale_versione_2,main).
+array_elem_ref(aref_14,mat_r,[i,j]).
+array_elem_ref(aref_15,mat_a,[i,k]).
+array_elem_ref(aref_16,mat_b,[k,j]).
 times(oref_1001,aref_15,aref_16,prodottomatriciale_versione_2,main).
 plus(expr_11,aref_14,oref_1001,prodottomatriciale_versione_2,main).
