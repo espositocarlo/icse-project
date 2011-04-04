@@ -1,0 +1,1177 @@
+/* regole generiche */
+
+  member(X,[X|Xs],1).
+  member(X,[Y|Ys],Pos) :- member(X,Ys,Pos_sofar), Pos is Pos_sofar+1.
+
+  nonmember(X,[Y|Ys]) :- X \== Y, nonmember(X,Ys).
+  nonmember(X,[]).
+
+  subterm(Term,Term).
+  subterm(Sub,Term) :- not(atomic(Term)),functor(Term,F,N),subterm(N,Sub,Term).
+  subterm(N,Sub,Term) :- N > 1, N1 is N-1, subterm(N1,Sub,Term).
+  subterm(N,Sub,Term) :- arg(N,Term,Arg), subterm(Sub,Arg).
+
+  subterm_from_sec(Term,Term).
+  subterm_from_sec(Sub,Term) :- not(atomic(Term)),functor(Term,F,N),
+                                subterm_from_sec(N,Sub,Term).
+  subterm_from_sec(N,Sub,Term) :- N > 2, N1 is N-1,
+                                  subterm_from_sec(N1,Sub,Term).
+  subterm_from_sec(N,Sub,Term) :- arg(N,Term,Arg), subterm_from_sec(Sub,Arg).
+
+/* regole riconoscitore */
+
+  same_exp(X,Y) :- X==Y.
+
+  comm_add_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		plus(Stp,Op1Stp,Op2Stp,Class,Method) ;
+                                     				plus(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_mul_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		times(Stp,Op1Stp,Op2Stp,Class,Method) ;
+                                     				times(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_eqv_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+                                     				equal(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_eq_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+                                     				equal(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_and_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		and(Stp,Op1Stp,Op2Stp,Class,Method) ;
+                                     				and(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_or_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		or(Stp,Op1Stp,Op2Stp,Class,Method);
+                                    				or(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_ne_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		not_equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+                                    				not_equal(Stp,Op2Stp,Op1Stp,Class,Method).
+
+  comm_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 			comm_add_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								comm_mul_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								comm_eqv_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								comm_and_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								comm_or_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								comm_eq_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								comm_ne_exp(Stp,Op1Stp,Op2Stp,Class,Method) .
+
+
+  binary_exp(Stp,Op1Stp,Op2Stp,Class,Method) :- 		plus(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								minus(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								times(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								divide(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								exp_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								not_equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								and(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								or(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								less(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								less_equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								greater(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								greater_equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								eq_exp(Stp,Op1Stp,Op2Stp,Class,Method) ;
+								ne_exp(Stp,Op1Stp,Op2Stp,Class,Method) .
+
+  unary_exp(Stp,OpStp,Class,Method) :- 				negate(Stp,OpStp,Class,Method) ;
+  								not_exp(Stp,OpStp,Class,Method).
+
+/* forse qui ci vogliono un po' di cut */
+  equiv_exp(X,Y,Class,Method) :- 				val_inst(X,SameType,SameVal,Class,Method),
+                    						val_inst(Y,SameType,SameVal,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				const_inst(X,SameIdent,Class,Method),
+                    						const_inst(Y,SameIdent,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				scalar_var_inst(X,SameIdent,Class,Method),
+                    						scalar_var_inst(Y,SameIdent,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				array_el_inst(X,SameArrIdent,SubScrListX,Class,Method),
+                    						array_el_inst(Y,SameArrIdent,SubScrListY,Class,Method),
+                    						equiv_subscr_list(SubScrListX,SubScrListY,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				plus(X,Op1X,Op2X,Class,Method),
+  								comm_add_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				minus(X,Op1X,Op2X,Class,Method),
+  								minus(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				times(X,Op1X,Op2X,Class,Method),
+  								comm_mul_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				divide(X,Op1X,Op2X,Class,Method),
+  								divide(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				exp_exp(X,Op1X,Op2X,Class,Method),
+  								exp_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				negate(X,OpX,Class,Method),
+  								negate(Y,OpY,Class,Method),
+  								equiv_exp(OpX,OpY,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				equal(X,Op1X,Op2X,Class,Method),
+  								comm_eqv_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				not_equal(X,Op1X,Op2X,Class,Method),
+  								not_equal(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				and(X,Op1X,Op2X,Class,Method),
+  								comm_and_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				or(X,Op1X,Op2X,Class,Method),
+  								comm_or_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				less(X,Op1X,Op2X,Class,Method),
+  								less(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				less_equal(X,Op1X,Op2X,Class,Method),
+  								less_equal(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				greater(X,Op1X,Op2X,Class,Method),
+  								greater(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				greater_equal(X,Op1X,Op2X,Class,Method),
+  								greater_equal(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				equal(X,Op1X,Op2X,Class,Method),
+  								comm_eq_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				not_equal(X,Op1X,Op2X,Class,Method),
+  								comm_ne_exp(Y,Op1Y,Op2Y,Class,Method),
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
+                    						equiv_exp(Op2X,Op2Y,Class,Method).
+
+  equiv_exp(X,Y,Class,Method) :- 				not_exp(X,OpX,Class,Method),
+  								not_exp(Y,OpY,Class,Method),
+  								equiv_exp(OpX,OpY,Class,Method).
+
+  equiv_subscr_list([X|Xs],[Y|Ys],Class,Method) :- 		equiv_exp(X,Y,Class,Method),
+                                      				equiv_subscr_list(Xs,Ys,Class,Method).
+
+  equiv_subscr_list([],[],Class,Method).
+
+  constant_inst(Stp,ValOrIdent,Class,Method) :- 		val_inst(Stp,Dummy,ValOrIdent,Class,Method).
+
+  constant_inst(Stp,ValOrIdent,Class,Method) :- 		const_inst(Stp,ValOrIdent,Class,Method).
+
+  var_inst(Stp,Ident,Class,Method) :- 				scalar_var_inst(Stp,Ident,Class,Method).
+
+  var_inst(Stp,Ident,Class,Method) :- 				array_el_inst(Stp,Ident,SubScrList,Class,Method).
+
+  inst(Stp,ValOrIdent,Class,Method) :- 				constant_inst(Stp,ValOrIdent,Class,Method).
+
+  inst(Stp,ValOrIdent,Class,Method) :- 				var_inst(Stp,ValOrIdent,Class,Method).
+
+  inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		inst(ExpStp,ValOrIdent,Class,Method).
+
+  inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
+								(
+									inst_in_exp(ValOrIdent,Op1Stp,Class,Method) ;
+								      	inst_in_exp(ValOrIdent,Op2Stp,Class,Method)
+								).
+
+  inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		unary_exp(ExpStp,OpStp,Class,Method),
+                                    				inst_in_exp(ValOrIdent,OpStp,Class,Method).
+
+  inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		array_el_inst(ExpStp,Dummy,SubScrList,Class,Method),
+                                    				member(SubScrExp,SubScrList,Class,Method),
+                                    				inst_in_exp(ValOrIdent,SubScrExp,Class,Method).
+
+  inst_in_exp(ValOrIdent,ExpStp,ExpStp,Class,Method) :- 	inst(ExpStp,ValOrIdent,Class,Method).
+
+  inst_in_exp(ValOrIdent,InstStp,ExpStp,Class,Method) :-
+								binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
+								(
+									inst_in_exp(ValOrIdent,InstStp,Op1Stp,Class,Method) ;
+								      	inst_in_exp(ValOrIdent,InstStp,Op2Stp,Class,Method)
+								).
+
+  inst_in_exp(ValOrIdent,InstStp,ExpStp,Class,Method) :-
+                                    				unary_exp(ExpStp,OpStp,Class,Method),
+                                    				inst_in_exp(ValOrIdent,InstStp,OpStp,Class,Method).
+
+  inst_in_exp(ValOrIdent,InstStp,ExpStp,Class,Method) :-
+                                    				array_el_inst(ExpStp,Dummy,SubScrList,Class,Method),
+                                    				member(SubScrExp,SubScrList,Class,Method),
+                                    				inst_in_exp(ValOrIdent,InstStp,SubScrExp,Class,Method).
+
+  inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :-
+								not( member(ExpStp,SubExpStpList) ),
+								inst(ExpStp,ValOrIdent,Class,Method).
+
+  inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :-
+								not( member(ExpStp,SubExpStpList) ),
+								binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
+								(
+									inst_in_exp_notcheck_subexps(ValOrIdent,Op1Stp,SubExpStpList,Class,Method) ;
+									inst_in_exp_notcheck_subexps(ValOrIdent,Op2Stp,SubExpStpList,Class,Method)
+								).
+
+  inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :-
+								not( member(ExpStp,SubExpStpList) ),
+								unary_exp(ExpStp,OpStp,Class,Method),
+								inst_in_exp_notcheck_subexps(ValOrIdent,OpStp,SubExpStpList,Class,Method).
+
+  inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :-
+								not( member(ExpStp,SubExpStpList) ),
+								array_el_inst(ExpStp,Dummy,SubScrList,Class,Method),
+								member(SubScrExp,SubScrList),
+								inst_in_exp_notcheck_subexps(ValOrIdent,SubScrExp,SubExpStpList,Class,Method).
+
+  constant_exp(ExpStp,Class,Method) :- 				constant_inst(ExpStp,Dummy,Class,Method).
+
+  constant_exp(ExpStp,Class,Method) :- 				binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
+								constant_exp(Op1Stp,Class,Method),
+								constant_exp(Op2Stp,Class,Method).
+
+  constant_exp(ExpStp,Class,Method) :- 				unary_exp(ExpStp,OpStp,Class,Method),
+  								constant_exp(OpStp,Class,Method).
+
+  sub_exp_in_exp(SubExpStp,ExpStp,Class,Method) :- 		SubExpStp = ExpStp.
+
+  sub_exp_in_exp(SubExpStp,ExpStp,Class,Method) :- 		binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
+								(
+									sub_exp_in_exp(SubExpStp,Op1Stp,Class,Method) ;
+									sub_exp_in_exp(SubExpStp,Op2Stp,Class,Method)
+								).
+
+  sub_exp_in_exp(SubExpStp,ExpStp,Class,Method) :- 		unary_exp(ExpStp,OpStp,Class,Method),
+                                      				sub_exp_in_exp(SubExpStp,OpStp,Class,Method).
+
+  sub_exp_in_exp(SubExpStp,ExpStp,Class,Method) :- 		array_el_inst(ExpStp,Dummy,SubScrList,Class,Method),
+                                      				member(SubScrExp,SubScrList),
+                                      				sub_exp_in_exp(SubExpStp,SubScrExp,Class,Method).
+
+  exp_in_stm(ExpStp,INass,HierAssign,Class,Method) :- 		assign_r(INass,HierAssign,LhsStp,RhsStp,Class,Method),
+								(
+									sub_exp_in_exp(ExpStp,LhsStp,Class,Method) ;
+									sub_exp_in_exp(ExpStp,RhsStp,Class,Method)
+								).
+
+  exp_in_stm(ExpStp,INdo,HierDo,Class,Method) :- 		do_r(INdo,HierDo,IndexStp,InitExpStp,LastExpStp,StepExpStp,Class,Method),
+                               					(
+                               						sub_exp_in_exp(ExpStp,IndexStp,Class,Method) ;
+                                 					sub_exp_in_exp(ExpStp,InitExpStp,Class,Method) ;
+                                 					sub_exp_in_exp(ExpStp,LastExpStp,Class,Method) ;
+                                 					sub_exp_in_exp(ExpStp,StepExpStp,Class,Method)
+                               					).
+
+  exp_in_stm(ExpStp,INif,HierIf,Class,Method) :- 		if_r(INif,HierIf,CondExpStp,Class,Method),
+                               					sub_exp_in_exp(ExpStp,CondExpStp,Class,Method).
+
+  inherit_dep(Concetto,ListaSottoConc) :-
+    findall( AltroConc,
+      ( /* flag(global_inst_number,GIN,GIN), between(1,GIN,AltroConc), */
+	between(1,Concetto,AltroConc),
+	findall( DepBranch,
+	  ( member(DepBranch,[true,false]),
+	    ( ( forall( member(SottoConc1,ListaSottoConc),
+			control_dep(SottoConc1,AltroConc,DepBranch,Class,Method) ),
+		not( member(AltroConc,ListaSottoConc) )
+	      ) ->
+	      assert_ifnotalready(control_dep(Concetto,AltroConc,DepBranch,Class,Method)) ;
+	      true
+	    ),
+	    ( ( member(SottoConc2,ListaSottoConc),
+		control_dep(AltroConc,SottoConc2,DepBranch,Class,Method),
+		not( member(AltroConc,ListaSottoConc) )
+	      ) ->
+	      assert_ifnotalready(control_dep(AltroConc,Concetto,DepBranch,Class,Method)) ;
+	      true
+	    )
+	  ),
+	  DepBranchList ),
+	forall( member(SottoConc3,ListaSottoConc),
+		(
+		  forall( ( data_dep(Type,SottoConc3,AltroConc,DepVar,DepLevel,Class,Method),
+			    not( member(AltroConc,ListaSottoConc) )
+			  ),
+		   assert_ifnotalready(data_dep(Type,Concetto,AltroConc,DepVar,DepLevel,Class,Method))
+		  ),
+		  forall( ( data_dep(Type,AltroConc,SottoConc3,DepVar,DepLevel,Class,Method),
+			    not( member(AltroConc,ListaSottoConc) )
+			  ),
+		   assert_ifnotalready(data_dep(Type,AltroConc,Concetto,DepVar,DepLevel,Class,Method))
+		  ),
+		  forall( data_dep(Type,SottoConc3,SottoConc3,DepVar,DepLevel,Class,Method),
+		   assert_ifnotalready(data_dep(Type,Concetto,Concetto,DepVar,DepLevel,Class,Method))
+		  )
+		)
+	      )
+      ),
+      AltroConcList ).
+
+  assert_ifnotalready(Term) :-
+  ( clause(Term,true) ->
+      true ;
+      assert(Term)
+    ).
+
+/* meglio la vers. di sotto, ma testare.
+  asserisci(Term)  :-
+    functor(Term,TermFunctor,TermArity),
+    ( ( functor(OtherInstance,TermFunctor,TermArity),
+        clause(OtherInstance,true),
+        Term = OtherInstance
+      ) ->
+      true ;
+      ( flag(global_inst_number,GINold,GINold+1),
+        IN is GINold + 1,
+        arg(1,Term,IN),
+        asserta( Term )
+      )
+    ).
+*/
+
+  asserisci(Term)  :-
+    ( clause(Term,true) ->
+      true ;
+      ( flag(global_inst_number,GINold,GINold+1),
+        IN is GINold + 1,
+        arg(1,Term,IN),
+        asserta( Term )
+      )
+    ).
+
+
+  dep_chain(HierChain,SrcStm,SinkStm,ListStm,ListVar) :-
+							    chained(SrcStm,SinkStm,ListStm,ListVar,ListHierStm,[]),
+							    HierChain =.. [dep_chain,IN|ListHierStm],
+							    flag(global_inst_number,GINold,GINold+1),
+							    IN is GINold + 1.
+
+  chained(SrcStm,SinkStm,[SrcStm|ListStm],[VarIdent|ListVar],[HierSrcStm|ListHierStm],ListAlreadyInChain) :-
+							    SrcStm \== SinkStm,
+							    assign_r(SrcStm,HierSrcStm,Dummy1,Dummy2,Class,Method),
+							    data_dep(true,MiddleStm,SrcStm,VarIdent,0,Class,Method),
+							    SrcStm \== MiddleStm,
+							    not( member(MiddleStm,ListAlreadyInChain) ),
+							    chained(MiddleStm,SinkStm,ListStm,ListVar,ListHierStm,
+								    	[SrcStm|ListAlreadyInChain]).
+
+  chained(SinkStm,SinkStm,[SinkStm],[],[HierSinkStm],ListAlreadyInChain) :-
+							    assign_r(SinkStm,HierSinkStm,Dummy1,Dummy2,Class,Method).
+
+  elem_update_r(IN,HierElUp,ElemUpdateStruct) :-
+							    assign_r(Def,HierDef,ElemDefStp,RhsDefStp,Class,Method),
+							    var_inst(ElemDefStp,ElemIdent,Class,Method),
+							    assign_r(Use,HierUse,LhsUseStp,RhsUseStp,Class,Method),
+							    inst_in_exp(ElemIdent,ElemUseStp,RhsUseStp,Class,Method),
+							    equiv_exp(ElemDefStp,ElemUseStp,Class,Method),
+							    ( Def == Use ->
+							      ( HierElUp = elem_update(IN,HierDef),
+								CompList = [Def],
+								ChainVarsList = [ElemIdent]
+							      ) ;
+							      ( data_dep(anti,Def,Use,ElemIdent,0,Class,Method),
+								dep_chain(HierChain,Use,Def,CompList,ChainVarsListButFirst),
+								append([ElemIdent],ChainVarsListButFirst,ChainVarsList),
+								HierElUp = elem_update(IN,HierChain)
+							      )
+							    ),
+							    ElemUpdateStruct =
+							      elem_update_s(ElemIdent,[ElemDefStp,ElemUseStp],CompList,ChainVarsList),
+							    asserisci( elem_update_r(IN,HierElUp,ElemUpdateStruct) ),
+							    inherit_dep(IN,CompList).
+
+  elem_shift_r(IN,elem_shift(IN,HierElUp),ElemShiftStruct) :-
+							    elem_update_r(ElUp,HierElUp,ElemShiftStruct),
+							    ElemShiftStruct =
+							      elem_update_s(ElemIdent,[ElemDefStp,ElemUseStp],CompList,ChainVarsList),
+							    forall( member(ChainStm,CompList,Pos),
+								    ( member(ChainVar,ChainVarsList,Pos),
+								      assign_r(ChainStm,_,_,ChainStmRhs,Class,Method),
+								      inst_descent_of_add_or_leftminus_unique(ChainVar,ChainStmRhs,_),
+								      forall( (member(Var,ChainVarsList), Var \== ChainVar),
+									      not( inst_in_exp(Var,ChainStmRhs,Class,Method) )
+								      )
+								    )
+								  ),
+							    asserisci( elem_shift_r(IN,elem_shift(IN,HierElUp),ElemShiftStruct) ),
+							    inherit_dep(IN,[ElUp]).
+
+
+/*  inst_descent_of_add_or_leftminus_unique(Ident,Exp,Exp) :-
+    							    var_inst(Exp,Ident,Class,Method).
+*/
+  inst_descent_of_add_or_leftminus_unique(Ident,Exp,IdentStp) :-
+							    (
+							    	comm_add_exp(Exp,Op1,Op2,Class,Method) ;
+							      	minus(Exp,Op1,Op2,Class,Method)
+							    ),
+							    inst_descent_of_add_or_leftminus_unique(Ident,Op1,IdentStp),
+							    not( inst_in_exp(Ident,Op2,Class,Method) ).
+
+
+  inst_descent_of_mul_or_leftdiv_unique(Ident,Exp,Exp) :-
+    							    var_inst(Exp,Ident,Class,Method).
+
+  inst_descent_of_mul_or_leftdiv_unique(Ident,Exp,IdentStp) :-
+							    (
+							    	comm_mul_exp(Exp,Op1,Op2,Class,Method) ;
+							      	divide(Exp,Op1,Op2,Class,Method)
+							    ),
+							    inst_descent_of_mul_or_leftdiv_unique(Ident,Op1,IdentStp),
+							    not( inst_in_exp(Ident,Op2,Class,Method) ).
+
+  inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Exp,Exp) :-
+    							    var_inst(Exp,Ident,Class,Method).
+
+  inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Exp,IdentStp):-
+							    (
+							    	comm_add_exp(Exp,Op1,Op2,Class,Method) ;
+							      	minus(Exp,Op1,Op2,Class,Method)
+							    ),
+							    inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Op1,IdentStp),
+							    not( inst_in_exp(Ident,Op2,Class,Method) ).
+
+  inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Exp,IdentStp):-
+							    (
+							    	comm_mul_exp(Exp,Op1,Op2,Class,Method) ;
+							      	divide(Exp,Op1,Op2,Class,Method)
+							    ),
+							    inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Op1,IdentStp),
+							    not( inst_in_exp(Ident,Op2,Class,Method) ).
+
+
+
+  exp_composed_of_mul(Exp) :-
+							    times(Exp,Op1,Op2,Class,Method),
+							    ( inst(Op1,_,Class,Method) ;
+							      exp_composed_of_mul(Op1)
+							    ),
+							    ( inst(Op2,_,Class,Method) ;
+							      exp_composed_of_mul(Op2)
+							    ).
+
+    exp_descent_of_add_or_leftminus(SubExp,Exp):- 		SubExp = Exp.
+
+    exp_descent_of_add_or_leftminus(SubExp,Exp):-
+							      (
+							      	comm_add_exp(Exp,Op1,Op2,Class,Method) ;
+								minus(Exp,Op1,Op2,Class,Method)
+							      ),
+							      exp_descent_of_add_or_leftminus(SubExp,Op1).
+
+    exp_descent_of_mul(SubExp,Exp):- 				SubExp = Exp.
+
+    exp_descent_of_mul(SubExp,Exp):-
+							      comm_mul_exp(Exp,Op1,Op2,Class,Method),
+							      exp_descent_of_mul(SubExp,Op1).
+
+
+  count_loop_r(IN,count_loop(IN,X),CntVarIdent,InitExpStp,LastExpStp,StepExpStp) :-
+					    do_r(Do,X,IndexStp,InitExpStp,LastExpStp,StepExpStp,Class,Method),
+					    scalar_var_inst(IndexStp,CntVarIdent,Class,Method),
+					    asserisci( count_loop_r(IN,count_loop(IN,X),CntVarIdent,InitExpStp,LastExpStp,StepExpStp) ),
+					    inherit_dep(IN,[Do]).
+
+  scan_r(IN,HierScan,Kind,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos) :-
+			    simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos),
+			    HierScan =.. [scan,IN,HierLoop,HierScanStm],
+			    Kind = k_simple_scan,
+			    asserisci( scan_r(IN,HierScan,Kind,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos) ),
+			    inherit_dep(IN,[Loop,ScanStm]).
+
+  scan_r(IN,HierScan,Kind,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos) :-
+					strip_mined_scan(OutLoop,HierOutLoop,InLoop,HierInLoop,ScanStm,HierScanStm,
+							Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos,StripSize,NumStrips),
+					HierScan =.. [strip_mined_scan,IN,HierOutLoop,HierInLoop,HierScanStm],
+					Kind = k_strip_mined_scan_constant(StripSize,NumStrips),
+					asserisci( scan_r(IN,HierScan,Kind,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos) ),
+					inherit_dep_strip_mined_scan(IN,[OutLoop,InLoop,ScanStm]).
+
+  inherit_dep_strip_mined_scan(Concetto,ListaSottoConc) :-
+    findall( AltroConc,
+      (
+        between(1,Concetto,AltroConc),
+        findall( DepBranch,
+          ( member(DepBranch,[true,false]),
+            ( ( forall( member(SottoConc1,ListaSottoConc),
+                        control_dep(SottoConc1,AltroConc,DepBranch,Class,Method) ),
+                not( member(AltroConc,ListaSottoConc) )
+              ) ->
+              assert_ifnotalready(control_dep(Concetto,AltroConc,DepBranch,Class,Method)) ;
+              true
+            ),
+            ( ( member(OutLoop,ListaSottoConc,1),
+                member(InLoop,ListaSottoConc,2),
+                control_dep(AltroConc,OutLoop,DepBranch,Class,Method),
+                control_dep(AltroConc,InLoop,DepBranch,Class,Method),
+                not( member(AltroConc,ListaSottoConc) )
+              ) ->
+              assert_ifnotalready(control_dep(AltroConc,Concetto,DepBranch,Class,Method)) ;
+              true
+            )
+          ),
+          DepBranchList ),
+        forall( member(SottoConc3,ListaSottoConc),
+                (
+                  forall( ( data_dep(Type,SottoConc3,AltroConc,DepVar,DepLevel,Class,Method),
+                            not( member(AltroConc,ListaSottoConc) )
+                          ),
+                   assert_ifnotalready(data_dep(Type,Concetto,AltroConc,DepVar,DepLevel,Class,Method))
+                  ),
+                  forall( ( data_dep(Type,AltroConc,SottoConc3,DepVar,DepLevel,Class,Method),
+                            not( member(AltroConc,ListaSottoConc) )
+                          ),
+                   assert_ifnotalready(data_dep(Type,AltroConc,Concetto,DepVar,DepLevel,Class,Method))
+                  ),
+                  forall( data_dep(Type,SottoConc3,SottoConc3,DepVar,DepLevel,Class,Method),
+                   assert_ifnotalready(data_dep(Type,Concetto,Concetto,DepVar,DepLevel,Class,Method))
+                  )
+                )
+              )
+      ),
+      AltroConcList ).
+
+
+
+
+  simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos) :-
+			    count_loop_r(Loop,HierLoop,IndexIdent,InitExpStp,LastExpStp,StepExpStp),
+			    control_dep(ScanStm,Loop,true,Class,Method),
+			    exp_in_stm(ArrayInstStp,ScanStm,HierScanStm,Class,Method),
+			    array_el_inst(ArrayInstStp,ArrayIdent,SubScrList,Class,Method),
+			    array_var(ArrayIdent,ArrayType,NDim,ArrayRangesList,Class,Method),
+			    member(SubScrExp,SubScrList,SubScrPos),
+			    member(ArrayDimRange,ArrayRangesList,SubScrPos),
+			    inst_in_exp(IndexIdent,SubScrExp,Class,Method),
+			    val_inst(InitExpStp,integer,InitValueLB,Class,Method),
+			    val_inst(LastExpStp,integer,LastValueLB,Class,Method),
+			    StepExpStp = lnull,
+			    Stride = unit_stride,
+			    nth1(1,ArrayDimRange,InitValueRange),
+			    nth1(2,ArrayDimRange,LastValueRange),
+			    ArrayDimRangeValue is (LastValueRange - InitValueRange + 1),
+			    LoopRangeValue is (LastValueLB - InitValueLB + 1),
+			    ArrayDimRangeValue == LoopRangeValue,
+			    Range = whole_array_scan(LoopRangeValue).
+
+  strip_mined_scan(OutLoop,HierOutLoop,InLoop,HierInLoop,ScanStm,HierScanStm,
+  		Range,Stride,InIndexIdent,ArrayInstStp,SubScrExp,SubScrPos,StripSize,NumStrips) :-
+    		    count_loop_r(OutLoop,HierOutLoop,OutIndexIdent,OutInitExpStp,OutLastExpStp,OutStepExpStp),
+    		    count_loop_r(InLoop,HierInLoop,InIndexIdent,InInitExpStp,InLastExpStp,InStepExpStp),
+    		    control_dep(InLoop,OutLoop,true,Class,Method),
+    		    control_dep(ScanStm,InLoop,true,Class,Method),
+		    exp_in_stm(ArrayInstStp,ScanStm,HierScanStm,Class,Method),
+		    array_el_inst(ArrayInstStp,ArrayIdent,SubScrList),
+		    array_var(ArrayIdent,ArrayType,NDim,ArrayRangesList),
+		    member(SubScrExp,SubScrList,SubScrPos),
+		    member(ArrayDimRange,ArrayRangesList,SubScrPos),
+		    val_inst(OutInitExpStp,integer,OutInitValue,Class,Method), /* assume esp. simpl. e n. */
+		    val_inst(OutLastExpStp,integer,OutLastValue,Class,Method),
+		    OutStepExpStp = lnull,
+		    NumStrips is OutLastValue - OutInitValue + 1,
+		    ( inst_in_exp(OutIndexIdent,SubScrExp,Class,Method) ->
+		      ( val_inst(InInitExpStp,integer,InInitValue,Class,Method),
+			val_inst(InLastExpStp,integer,InLastValue,Class,Method),
+			InStepExpStp = lnull,
+			Stride = unit_stride, /* modificare */
+			StripSize is InLastValue - InInitValue + 1,
+			comm_add_exp(SubScrExp,SubScrAddOp1,SubScrAddOp2,Class,Method),
+			scalar_var_inst(SubScrAddOp2,InIndexIdent),
+			( ( comm_mul_exp(SubScrAddOp1,SubScrMulOp1,SubScrMulOp2,Class,Method),
+			    scalar_var_inst(SubScrMulOp2,OutIndexIdent,Class,Method),
+			    val_inst(SubScrMulOp1,integer,StripSize,Class,Method),
+			    0 is 1 - InInitValue - (OutInitValue * StripSize)
+			  ) ;
+			  ( comm_add_exp(SubScrAddOp1,AddAddOp1,AddAddOp2,Class,Method),
+			    comm_mul_exp(AddAddOp2,SubScrMulOp1,SubScrMulOp2,Class,Method),
+			    scal_var_inst(SubScrMulOp2,OutIndexIdent,Class,Method),
+			    val_inst(SubScrMulOp1,integer,StripSize,Class,Method),
+			    val_inst(AddAddOp1,integer,TempValue1,Class,Method),
+			    TempValue1 is 1 - InInitValue - (OutInitValue * StripSize)
+			  )
+			)
+		      ) ;
+		      (
+			( ( comm_mul_exp(InInitExpStp,InInitMulOp1,InInitMulOp2,Class,Method),
+			    scal_var_inst(InInitMulOp2,OutIndexIdent,Class,Method),
+			    val_inst(InInitMulOp1,integer,StripSize,Class,Method),
+			    InInitValue is OutInitValue * StripSize
+			  ) ;
+			  ( comm_add_exp(InInitExpStp,InInitAddOp1,InInitAddOp2,Class,Method),
+			    comm_mul_exp(InInitAddOp2,InInitMulOp1,InInitMulOp2,Class,Method),
+			    scal_var_inst(InInitMulOp2,OutIndexIdent,Class,Method),
+			    val_inst(InInitMulOp1,integer,StripSize,Class,Method),
+			    val_inst(InInitAddOp1,integer,TempValue2,Class,Method),
+			    InInitValue is TempValue2 + (OutInitValue * StripSize)
+			  )
+			),
+			( ( comm_mul_exp(InLastExpStp,InLastMulOp1,InLastMulOp2,Class,Method),
+			    scal_var_inst(InLastMulOp2,OutIndexIdent,Class,Method),
+			    val_inst(InLastMulOp1,integer,StripSize,Class,Method),
+			    0 is InInitValue - 1 - (OutInitValue * StripSize) + StripSize
+			  ) ;
+			  ( comm_add_exp(InLastExpStp,InLastAddOp1,InLastAddOp2,Class,Method),
+			    comm_mul_exp(InLastAddOp2,InLastMulOp1,InLastMulOp2,Class,Method),
+			    scal_var_inst(InLastMulOp2,OutIndexIdent,Class,Method),
+			    val_inst(InLastMulOp1,integer,StripSize,Class,Method),
+			    val_inst(InLastAddOp1,integer,TempValue3,Class,Method),
+			    TempValue3 is InInitValue - 1 - OutInitValue * StripSize + StripSize
+			  )
+			),
+			InStepExpStp = lnull,
+			( ( scal_var_inst(SubScrExp,InIndexIdent,Class,Method),
+			    InInitValue is 1
+			  ) ;
+			  ( comm_add_exp(SubScrExp,SubScrAddOp1,SubScrAddOp2,Class,Method),
+			    scal_var_inst(SubScrAddOp2,InIndexIdent,Class,Method),
+			    val_inst(SubScrAddOp1,integer,TempValue4,Class,Method),
+			    TempValue4 is 1 - InInitValue
+			  )
+			)
+		      )
+		    ),
+		    nth1(1,ArrayDimRange,InitValueRange),
+		    nth1(2,ArrayDimRange,LastValueRange),
+		    ArrayDimRangeValue is (LastValueRange - InitValueRange + 1),
+		    /* implementare: StripSize*NumStrips == ArrayDimRangeValue */
+		    Range = whole_array_scan(ArrayDimRangeValue).
+
+
+  array_update_values_r(IN,array_update_values(IN,HierScanDef,HierScanUse,HierElUp),ElemStruct,SubScrPos,IndexIdent) :-
+    elem_update_r(ElUp,HierElUp,ElemStruct),
+    ElemStruct = elem_update_s(ArrayIdent,[ArrayDefStp,ArrayUseStp],_,_),
+    array_var(ArrayIdent,_,_,_,Class,Method),
+    scan_r(ScanDef,HierScanDef,KindScan,whole_array_scan(RangeValue),
+           unit_stride,IndexIdent,ArrayDefStp,DefSubScrExp,SubScrPos),
+    control_dep(ElUp,ScanDef,true,Class,Method),
+    scan_r(ScanUse,HierScanUse,KindScan,whole_array_scan(RangeValue),
+           unit_stride,IndexIdent,ArrayUseStp,UseSubScrExp,SubScrPos),
+    control_dep(ElUp,ScanUse,true,Class,Method),
+    HierScanDef =.. [ConceptName,ScanDef|ScanDefHierList],
+    append(ScanDefHierListButLast,[HierScanDefStm],ScanDefHierList),
+    HierScanUse =.. [ConceptName,ScanUse|ScanUseHierList],
+    append(ScanUseHierListButLast,[HierScanUseStm],ScanUseHierList),
+    ScanDefHierListButLast == ScanUseHierListButLast,
+    asserisci( array_update_values_r(IN,
+                      array_update_values(IN,HierScanDef,HierScanUse,HierElUp),
+                      ElemStruct,SubScrPos,IndexIdent) ),
+    inherit_dep(IN,[ScanDef,ScanUse,ElUp]).
+
+  array_shift_values_r(IN,array_shift_values(IN,HierScanDef,HierScanUse,HierElSh),ElemStruct,SubScrPos,IndexIdent) :-
+    elem_shift_r(ElSh,HierElSh,ElemStruct),
+    ElemStruct = elem_update_s(ArrayIdent,[ArrayDefStp,ArrayUseStp],_,_),
+    array_var(ArrayIdent,_,_,_,Class,Method),
+    scan_r(ScanDef,HierScanDef,KindScan,whole_array_scan(RangeValue),
+           unit_stride,IndexIdent,ArrayDefStp,DefSubScrExp,SubScrPos),
+    control_dep(ElSh,ScanDef,true,Class,Method),
+    scan_r(ScanUse,HierScanUse,KindScan,whole_array_scan(RangeValue),
+           unit_stride,IndexIdent,ArrayUseStp,UseSubScrExp,SubScrPos),
+    control_dep(ElSh,ScanUse,true,Class,Method),
+    HierScanDef =.. [ConceptName,ScanDef|ScanDefHierList],
+    append(ScanDefHierListButLast,[HierScanDefStm],ScanDefHierList),
+    HierScanUse =.. [ConceptName,ScanUse|ScanUseHierList],
+    append(ScanUseHierListButLast,[HierScanUseStm],ScanUseHierList),
+    ScanDefHierListButLast == ScanUseHierListButLast,
+    asserisci( array_shift_values_r(IN,
+                      array_shift_values(IN,HierScanDef,HierScanUse,HierElSh),
+                      ElemStruct,SubScrPos,IndexIdent) ),
+    inherit_dep(IN,[ScanDef,ScanUse,ElSh]).
+
+  shift_reduction_r(IN,HierRed,ElemAccumStruct,ArrayReducedStruct) :-
+    elem_shift_r(ElSh,HierElSh,ElemAccumStruct),
+    ElemAccumStruct =
+      elem_update_s(ElemIdent,[ElemDefStp,ElemUseStp],ShiftCompList,_),
+    last(ElemDefStm,ShiftCompList),
+    nth1(1,ShiftCompList,ElemUseStm),
+    scan_r(Scan,HierScan,KindScan,whole_array_scan(RangeValue),
+           unit_stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos),
+    control_dep(ElSh,Scan,true,Class,Method),
+    data_dep(true,ElemUseStm,ElemDefStm,ElemIdent,DepLevel,Class,Method),
+    DepLevel \== 0,
+    HierScan =.. HierScanList,
+    last(HierScanStm,HierScanList),
+    assign_r(ScanStm,HierScanStm,LhsExpStp,RhsExpStp,Class,Method),
+    inst_in_exp(ArrayIdent,ArrayInstStp,RhsExpStp,Class,Method),
+    dep_chain(HierChainScanDef,ScanStm,ElemDefStm,ChainScanDefListStm,
+              ChainScanDefListVarButFirst),
+    append([ArrayIdent],ChainScanDefListVarButFirst,ChainScanDefListVar),
+    not( inst_in_exp(IndexIdent,ElemDefStp,Class,Method) ),
+    not(( inst_in_exp(VarIdent,VarStp,ElemDefStp,Class,Method),
+          var_inst(VarStp,VarIdent,Class,Method),
+          data_dep(true,Stm,Scan,IndexIdent,AnyLevel1,Class,Method),
+          assign_r(Stm,_,_,_,Class,Method),
+          dep_chain(_,Stm,ElemDefStm,_,ListVar),
+          last(VarIdent,ListVar)
+       )),
+    not(( data_dep(true,ElemUseStm,Stm2,ElemIdent,AnyLevel2,Class,Method),
+          Stm2 \== ElemUseStm,
+          control_dep(Stm2,Scan,true,Class,Method),
+          Stm2 \== ElemDefStm
+       )),
+    ( ScanStm == ElemDefStm  ->
+        HierRed = shift_reduction(IN,HierScan,HierElSh) ;
+        HierRed = shift_reduction(IN,HierScan,HierElSh,HierChainScanDef)
+    ),
+    ArrayReducedStruct =
+      array_reduced_s([ArrayIdent,ArrayInstStp,SubScrExp,SubScrPos],
+                      IndexIdent,
+                      ChainScanDefListStm,ChainScanDefListVar),
+    asserisci(shift_reduction_r(IN,HierRed,ElemAccumStruct,ArrayReducedStruct)),
+    ( ScanStm == ElemDefStm  ->
+        inherit_dep(IN,[Scan,ElSh]) ;
+        inherit_dep(IN,[Scan,ElSh|ChainScanDefListStm])
+    ).
+
+  nonsimul_relaxation_step_r(IN,HierNSRStep,NSRStepArrayStruct) :-
+    array_update_values_r(AUVal,HierAUVal,AUValElUpStruct,AUValSubScrPos,
+                           AUValIndexIdent),
+    shift_reduction_r(Red,HierRed,RedAccumStruct,RedArrStruct),
+    control_dep(Red,AUVal,true,Class,Method),
+    RedArrStruct = array_reduced_s([ArrIdent,_,_,ArrSubScrPos],_,_,_),
+    AUValSubScrPos == ArrSubScrPos,
+    AUValElUpStruct = elem_update_s(ArrIdent,_,AUValElUpStmList,_),
+    HierRed =.. [_,Red,_,HierRedElSh|_],
+    HierRedElSh =..[_,_,HierRedElUp], HierRedElUp =.. [_,RedElUp|_],
+    HierAUVal =.. [_,AUVal,_,_,HierAUValElUp],
+    HierAUValElUp =.. [_,AUValElUp|_],
+    last(AUValElUpDefStm,AUValElUpStmList),
+    RedAccumStruct = elem_update_s(RedAccumIdent,_,RedAccumStmList,_),
+    last(RedAccumDefStm,RedAccumStmList),
+    ( RedElUp == AUValElUp ->
+      ( HierNSRStep = nonsimul_relaxation_step(IN,HierAUVal,HierRed),
+        CompList = [AUVal,Red]
+      ) ;
+      ( dep_chain(HierChain,RedAccumDefStm,AUValElUpDefStm,ChainStmList,_),
+/*controllare che venga asserito questo fatto; altrimenti, ristrutturare tutto
+        data_dep(true,AUVal,Red,RedAccumIdent,0,Class,Method), */
+        HierNSRStep = nonsimul_relaxation_step(IN,HierAUVal,HierRed,HierChain),
+        CompList = [AUVal,Red|ChainStmList]
+      )
+    ),
+    NSRStepArrayStruct = nsr_step_array_s(ArrIdent,ArrSubScrPos),
+    asserisci( nonsimul_relaxation_step_r(IN,HierNSRStep,NSRStepArrayStruct) ),
+    inherit_dep(IN,CompList).
+
+  dot_product_r(IN,HierDotProd,AccumStruct,Arr1Struct,Arr2Struct) :-
+    shift_reduction_r(Red1,HierRed1,AccumStruct,Arr1Struct),
+    shift_reduction_r(Red2,HierRed2,AccumStruct,Arr2Struct),
+    Red1 \== Red2,
+    HierRed1 =.. [shift_reduction,Red1,HierScan1,HierElSh1|Dummy1],
+    HierRed2 =.. [shift_reduction,Red2,HierScan2,HierElSh2|Dummy2],
+    HierElSh1 == HierElSh2,
+    HierScan1 =.. [ScanName,Scan1|Scan1HierList],
+    append(Scan1HierListButLast,[HierScan1Stm],Scan1HierList),
+    HierScan2 =.. [ScanName,Scan2|Scan2HierList],
+    append(Scan2HierListButLast,[HierScan2Stm],Scan2HierList),
+    Scan1HierListButLast == Scan2HierListButLast,
+    Arr1Struct =
+      array_reduced_s([Arr1Ident,Arr1InstStp,Arr1SubScrExp,Arr1SubScrPos],
+                      IndexIdent,
+                      Arr1ChainListStm,Arr1ChainListVar),
+    Arr2Struct =
+      array_reduced_s([Arr2Ident,Arr2InstStp,Arr2SubScrExp,Arr2SubScrPos],
+                      IndexIdent, Arr2ChainListStm,Arr2ChainListVar),
+    not( same_exp(Arr1InstStp,Arr2InstStp) ),
+    equiv_exp(Arr1SubScrExp,Arr2SubScrExp,Class,Method),
+    append(DistArr1ChainListStm,CommonArr12ChainListStm,Arr1ChainListStm),
+    append(DistArr2ChainListStm,CommonArr12ChainListStm,Arr2ChainListStm),
+    forall( member(DistArr1ChainStm,DistArr1ChainListStm,Pos1),
+            ( assign_r(DistArr1ChainStm,_,_,DistArr1ChainStmRhs,Class,Method),
+              member(DistArr1ChainVar,Arr1ChainListVar,Pos1),
+              inst_descent_of_mul_or_leftdiv_unique(DistArr1ChainVar,
+                                                    DistArr1ChainStmRhs,_),
+              not( inst_in_exp_notcheck_subexps(IndexIdent,DistArr1ChainStmRhs,
+                                               [Arr1SubScrExp,Arr2SubScrExp],Class,Method))
+            )
+          ),
+    forall( member(DistArr2ChainStm,DistArr2ChainListStm,Pos2),
+            ( assign_r(DistArr2ChainStm,_,_,DistArr2ChainStmRhs,Class,Method),
+              member(DistArr2ChainVar,Arr2ChainListVar,Pos2),
+              inst_descent_of_mul_or_leftdiv_unique(DistArr2ChainVar,
+                                                    DistArr2ChainStmRhs,_),
+              not( inst_in_exp_notcheck_subexps(IndexIdent,DistArr2ChainStmRhs,
+                                               [Arr1SubScrExp,Arr2SubScrExp],Class,Method) )
+            )
+          ),
+    length(DistArr1ChainListStm,Length1),
+    length(Temp1ListLength,Length1),
+    append(Temp1ListLength,TailArr1ChainListVar,Arr1ChainListVar),
+    length(DistArr2ChainListStm,Length2),
+    length(Temp2ListLength,Length2),
+    append(Temp2ListLength,TailArr2ChainListVar,Arr2ChainListVar),
+    TailArr1ChainListVar = [LastDistArr1ChainVar|CommonSubList],
+    TailArr2ChainListVar = [LastDistArr2ChainVar|CommonSubList],
+    nth1(1,CommonArr12ChainListStm,FirstCommonArr12ChainStm),
+    assign_r(FirstCommonArr12ChainStm,_,_,FirstCommonArr12ChainStmRhs,Class,Method),
+    sub_exp_in_exp(RootCommonExp,FirstCommonArr12ChainStmRhs,Class,Method),
+    exp_composed_of_mul(RootCommonExp),
+    inst_in_exp(LastDistArr1ChainVar,RootCommonExp,Class,Method),
+    inst_in_exp(LastDistArr2ChainVar,RootCommonExp,Class,Method),
+    inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(
+      LastDistArr2ChainVar,FirstCommonArr12ChainStmRhs,_),
+    forall( member(CommonArr12ChainStm,CommonArr12ChainListStm,Pos3),
+            ( assign_r(CommonArr12ChainStm,_,_,CommonArr12ChainStmRhs,Class,Method),
+              member(Arr12ChainVar,TailArr1ChainListVar,Pos3),
+              inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(
+                                      Arr12ChainVar,CommonArr12ChainStmRhs,_)
+            )
+          ),
+    AccumStruct = elem_update_s(_,_,AccumChainListStm,_),
+    last(AccumDefStm,AccumChainListStm),
+    not(( data_dep(true,TmpStm,Scan1,IndexIdent,AnyLevel,Class,Method),
+          assign_r(TmpStm,_,_,TmpStmRhs,Class,Method),
+          inst_in_exp_notcheck_subexps(IndexIdent,TmpStmRhs,
+                                       [Arr1SubScrExp,Arr2SubScrExp],Class,Method),
+          dep_chain(_,TmpStm,AccumDefStm,_,_)
+       )),
+    HierDotProd = dot_product(IN,HierRed1,HierRed2),
+    asserisci(dot_product_r(IN,HierDotProd,AccumStruct,Arr1Struct,Arr2Struct) ),
+    inherit_dep(IN,[HierRed1,HierRed2]).
+
+
+  array_updated_from_temp_var_in_count_loop_r(IN,using_temp_var(IN,HierTempUsing),
+  	Loop,IndexIdent,TempInstStp,TempUpdate,ArrayIdent,ArrayInstStp) :-
+    scal_var_inst(TempInstStp,TempIdent,Class,Method),
+    assign_r(TempUsing,HierTempUsing,ArrayInstStp,TempUsingRhs,Class,Method),
+    inst_in_exp(TempIdent,TempUsingRhs,Class,Method),
+    arr_el_inst(ArrayInstStp,ArrayIdent,Dummy1,Class,Method),
+    inst_in_exp(IndexIdent,ArrayInstStp,Class,Method),
+    control_dep(TempUsing,Loop,true,Class,Method),
+    data_dep(true,TempUsing,TempUpdate,TempIdent,Class,Method),
+    asserisci( array_updated_from_temp_var_in_count_loop_r(IN,
+               using_temp_var(IN,HierTempUsing),Loop,IndexIdent,TempInstStp,
+               TempUpdate,ArrayIdent,ArrayInstStp) ).
+
+  matrix_vector_multiply_r(IN,MVStruct,Array1Ident,ScPrPosInArray1,MVPosInArray1,Array2Ident,ScPrPosInArray2,
+                         ResArrayIdent,MVPosInResArray,SubScrListArrEl2,SubScrListResArr) :-
+    scalar_product_r(ScalarProd,HierScalarProd,AccumScPrVar,
+                   Array1Ident,SubScrListArrEl1,ScPrPosInArray1,
+                   Array2Ident,SubScrListArrEl2,ScPrPosInArray2),
+    arg(2,HierScalarProd,HierScPrLoop),
+    arg(1,HierScPrLoop,ScPrLoop),
+    arg(3,HierScalarProd,HierScPrUpdateAccum),
+    arg(1,HierScPrUpdateAccum,ScPrUpdateAccum),
+    ( strip_mined_scan_r(Loop,HierLoop,IndexIdent,Array1InstStp,SubScrExpArr1,
+                         StripSize,NumStrips) ;
+      count_loop_r(Loop,HierLoop,IndexIdent,InitExpStp,LastExpStp,StepExpStp)
+    ),
+    control_dep(ScPrUpdateAccum,Loop,true,Class,Method),
+    member(SubScrExpArr1,SubScrListArrEl1,MVPosInArray1),
+    MVPosInArray1 \== ScPrPosInArray1,
+    ( functor(HierLoop,strip_mined_scan,4) ->
+      true ;
+      ( scal_var_inst(SubScrExpArr1,IndexIdent,Class,Method),
+        array_var(Array1Ident,ArrayType,NDim,Array1RangesList,Class,Method),
+        member(Range,Array1RangesList,MVPosInArray1)
+      )
+    ),
+    arg(2,AccumScPrVar,ScPrAccumInstList),
+    member(ScPrAccumStp,ScPrAccumInstList,2),
+    ( ( array_el_inst(ScPrAccumStp,ResArrayIdent,SubScrListResArr,Class,Method),
+        Temp1List = []
+      ) ;
+      ( array_updated_from_temp_var_in_count_loop_r(AccumUsing,HierAccumUsing,
+                               Loop,IndexIdent,ScPrAccumStp,ScPrUpdateAccum,
+                                              ResArrayIdent,ResArrayInstStp),
+        array_el_inst(ResArrayInstStp,ResArrayIdent,SubScrListResArr,Class,Method),
+        Temp1List = [HierAccumUsing]
+      )
+    ),
+    member(SubScrExpResArr,SubScrListResArr,MVPosInResArray),
+    equiv_exp(SubScrExpArr1,SubScrExpResArr,Class,Method),
+    append([matrix_vector_multiply,IN,HierLoop,HierScalarProd],Temp1List,Temp2List),
+    MVStruct =.. Temp2List,
+    asserisci( matrix_vector_multiply_r(IN,MVStruct,Array1Ident,ScPrPosInArray1,
+               MVPosInArray1,Array2Ident,ScPrPosInArray2,ResArrayIdent,
+               MVPosInResArray,SubScrListArrEl2,SubScrListResArr) ),
+    inherit_dep(IN,[ScalarProd,Loop]).
+
+  matrix_matrix_multiply_r(IN,matrix_matrix_multiply(IN,HierLoop,HierMatrVecMul),Array1Ident,ScPrPosInArray1,MmPosInArray1,
+                         Array2Ident,ScPrPosInArray2,MmPosInArray2,ResArrayIdent,MmPos1InResArray,MmPos2InResArray) :-
+    matrix_vector_multiply_r(MatrVecMul,HierMatrVecMul,
+                           Array1Ident,ScPrPosInArray1,MmPosInArray1,
+                           Array2Ident,ScPrPosInArray2,
+                           ResArrayIdent,MmPos1InResArray,
+                           SubScrListArr2,SubScrListResArr),
+    arg(2,HierMatrVecMul,HierMVLoop),
+    arg(1,HierMVLoop,MVLoop),
+    arg(3,HierMatrVecMul,HierScalarProd),
+    arg(1,HierScalarProd,ScalarProd),
+    arg(2,HierScalarProd,HierScPrLoop),
+    arg(1,HierScPrLoop,ScPrLoop),
+    arg(3,HierScalarProd,HierScPrUpdateAccum),
+    arg(1,HierScPrUpdateAccum,ScPrUpdateAccum),
+    ( strip_mined_scan_r(Loop,HierLoop,IndexIdent,Array2InstStp,SubScrExpArr2,
+                         StripSize,NumStrips) ;
+      count_loop_r(Loop,HierLoop,IndexIdent,InitExpStp,LastExpStp,StepExpStp)
+    ),
+    control_dep(ScPrUpdateAccum,Loop,true,Class,Method),
+    member(SubScrExpArr2,SubScrListArr2,MmPosInArray2),
+    MmPosInArray2 \== ScPrPosInArray2,
+    ( functor(HierLoop,strip_mined_scan,4) ->
+      true ;
+      ( scal_var_inst(SubScrExpArr2,IndexIdent,Class,Method),
+        array_var(Array2Ident,ArrayType,NDim,Array2RangesList,Class,Method),
+        member(Range,Array2RangesList,MmPosInArray2)
+      )
+    ),
+    member(SubScrExpResArr,SubScrListResArr,MmPos2InResArray),
+    equiv_exp(SubScrExpArr2,SubScrExpResArr,Class,Method),
+    MmPos1InResArray \== MmPos2InResArray,
+    asserisci( matrix_matrix_multiply_r(IN,
+               matrix_matrix_multiply(IN,HierLoop,HierMatrVecMul),Array1Ident,
+               ScPrPosInArray1,MmPosInArray1,Array2Ident,ScPrPosInArray2,
+               MmPosInArray2,ResArrayIdent,MmPos1InResArray,MmPos2InResArray) ),
+    inherit_dep(IN,[MatrVecMul,Loop]).
+
+
+
+prodotto_matriciale(Class,Method):-
+					control_dep(Z,J,for,Class,Method),
+					control_dep(J,I,for,Class,Method),
+					control_dep(I,_,for,Class,Method),
+					(
+						do_r(_,do(IDz,Z),InitZ,FirstZ,LastZ,IncrZ,Class,Method),
+						post_incr(IncrZ,_,Class,Method),
+						assign_r(_,assign(_,_),InitZ,0,Class,Method),
+						less(Z,_,DimZ,Class,Method),
+
+						asserta(count_loop(50,52)),
+
+						save(count_loop(50,52)),
+						save(do(52,Z))
+					),
+					(
+						do_r(_,do(IDj,J),InitJ,FirstJ,LastJ,IncrJ,Class,Method),
+						post_incr(IncrJ,_,Class,Method),
+						assign_r(_,assign(_,_),InitJ,0,Class,Method),
+						less(J,_,DimJ,Class,Method),
+
+						asserta(count_loop(42,48)),
+
+						save(count_loop(42,48)),
+						save(do(48,J))
+					),
+					(
+						do_r(_,do(IDi,I),InitI,FirstI,LastI,IncrI,Class,Method),
+						post_incr(IncrI,_,Class,Method),
+						assign_r(_,assign(_,_),InitI,0,Class,Method),
+						less(I,_,DimI,Class,Method),
+
+						asserta(count_loop(43,49)),
+
+						save(count_loop(43,49)),
+						save(do(49,I))
+					),
+					plus(StpPlus,StpPlusOp1,StpPlusOp2,Class,Method),
+					control_dep(StpPlus,Z,expression,Class,Method),
+					control_dep(StpPlusOp1,Z,expression,Class,Method),
+					control_dep(StpPlusOp2,Z,expression,Class,Method),
+					;(
+						(
+							assign_r(_,assign(_,_),StpPlusOp1,StpCijDx,Class,Method),
+							array_use(StpPlusOp1,CijDx,SubScrCijDx,Class,Method),
+							array_el_inst(StpPlus,CijSx,SubScrCijSx,Class,Method),
+
+							asserta(elementCij(51,37)),
+							asserta(scan(33,42,37)),
+							asserta(scan(38,43,37)),
+							asserta(assign(37,StpPlusOp1)),
+
+							save(elementCij(51,37)),
+							save(scan(33,42,37)),
+							save(scan(38,43,37)),
+							save(assign(37,StpPlusOp1))
+						),
+						(
+							array_el_inst(StpPlusOp1,CijDx,SubScrCijDx,Class,Method),
+
+							asserta(elementCij(51,37)),
+							asserta(scan(33,42,37)),
+							asserta(scan(38,43,37)),
+							asserta(assign(37,StpPlusOp1)),
+
+							save(elementCij(51,37)),
+							save(scan(33,42,37)),
+							save(scan(38,43,37)),
+							save(assign(37,StpPlusOp1))
+						)
+					),
+					;(
+						(
+							;(
+								(
+									assign_r(_,assign(_,_),StpPlusOp2,StpApp,Class,Method),
+									times(StpApp,StpAppOp1,StpAppOp2,Class,Method),
+									assign_r(_,assign(_,_),StpAppOp1,StpMulOp1,Class,Method),
+									assign_r(_,assign(_,_),StpAppOp2,StpMulOp2,Class,Method),
+									StpMul = StpApp,
+									control_dep(StpAppOp1,Z,expression,Class,Method),
+									control_dep(StpAppOp2,Z,expression,Class,Method),
+
+									asserta(product(53,56,54,55)),
+									asserta(elementAiz(54,44)),
+									asserta(elementBzj(55,35)),
+									asserta(scan(46,50,44)),
+									asserta(scan(40,43,44)),
+									asserta(scan(31,42,35)),
+									asserta(scan(45,50,35)),
+									asserta(assign(44,StpAppOp1)),
+									asserta(assign(35,StpAppOp2)),
+									asserta(mul(56,StpMul)),
+
+									save(product(53,56,54,55)),
+									save(elementAiz(54,44)),
+									save(elementBzj(55,35)),
+									save(scan(46,50,44)),
+									save(scan(40,43,44)),
+									save(scan(31,42,35)),
+									save(scan(45,50,35)),
+									save(assign(44,StpAppOp1)),
+									save(assign(35,StpAppOp2)),
+									save(mul(56,StpMul)),
+
+									array_use(StpAppOp1,IdentMatA,SubScrA,Class,Method),
+									(IdentMatA\==IdentMatC),
+									array_use(StpAppOp2,IdentMatB,SubScrB,Class,Method),
+									(IdentMatB\==IdentMatC, IdentMatB\==IdentMatA)
+								) ,
+								(
+									times(StpPlusOp2,StpMulOp1,StpMulOp2,Class,Method),
+									StpMul = StpPlusOp2,
+
+									asserta(product(53,56,54,55)),
+									asserta(elementAiz(54,44)),
+									asserta(elementBzj(55,35)),
+									asserta(scan(46,50,44)),
+									asserta(scan(40,43,44)),
+									asserta(scan(31,42,35)),
+									asserta(scan(45,50,35)),
+									asserta(assign(44,StpPlusOp2)),
+									asserta(assign(35,StpPlusOp2)),
+									asserta(mul(56,StpMul)),
+
+									save(product(53,56,54,55)),
+									save(elementAiz(54,44)),
+									save(elementBzj(55,35)),
+									save(scan(46,50,44)),
+									save(scan(40,43,44)),
+									save(scan(31,42,35)),
+									save(scan(45,50,35)),
+									save(assign(44,StpPlusOp2)),
+									save(assign(35,StpPlusOp2)),
+									save(mul(56,StpMul)),
+
+									array_use(StpPlusOp2,IdentMatA,SubScrA,Class,Method),
+									(IdentMatA\==IdentMatC),
+									array_use(StpPlusOp2,IdentMatB,SubScrB,Class,Method),
+									(IdentMatB\==IdentMatC, IdentMatB\==IdentMatA)
+								)
+							)
+						),
+						(
+							assign_r(_,assign(_,_),StpPlusOp2,StpMul,Class,Method),
+							times(StpMul,StpMulOp1,StpMulOp2,Class,Method),
+
+							asserta(product(53,56,54,55)),
+							asserta(elementAiz(54,44)),
+							asserta(elementBzj(55,35)),
+							asserta(scan(46,50,44)),
+							asserta(scan(40,43,44)),
+							asserta(scan(31,42,35)),
+							asserta(scan(45,50,35)),
+							asserta(assign(44,StpMul)),
+							asserta(assign(35,StpMul)),
+							asserta(mul(56,StpMul)),
+
+							save(product(53,56,54,55)),
+							save(elementAiz(54,44)),
+							save(elementBzj(55,35)),
+							save(scan(46,50,44)),
+							save(scan(40,43,44)),
+							save(scan(31,42,35)),
+							save(scan(45,50,35)),
+							save(assign(44,StpMul)),
+							save(assign(35,StpMul)),
+							save(mul(56,StpMul)),
+
+							array_use(StpMul,IdentMatA,SubScrA,Class,Method),
+							(IdentMatA\==IdentMatC),
+							array_use(StpMul,IdentMatB,SubScrB,Class,Method),
+							(IdentMatB\==IdentMatC, IdentMatB\==IdentMatA)
+						)
+					),
+					control_dep(StpMul,Z,expression,Class,Method),
+					confronto_maggiore(StpPlus,LastZ),
+					confronto_minore(StpPlus,FirstZ),
+					confronto_maggiore(StpMul,LastZ),
+					confronto_minore(StpMul,FirstZ),
+					subscr_list_eqv(SubScrCijDx,SubScrCijSx,Class,Method),
+
+					asserta(somma(47,StpPlus)),
+
+					save(somma(47,StpPlus)),
+
+					verifica_indici(SubScrA,SubScrB,SubScrCijDx),
+					(
+						array_var(IdentMatA,_,2,_,_,ListaA,Class,Method),
+						array_var(IdentMatB,_,2,_,_,ListaB,Class,Method)
+					),
+					verifica_dim(ListaA,ListaB,DimI,DimJ,DimZ),
+
+					asserta(scan(39,43,36)),
+					asserta(scan(32,42,36)),
+					asserta(assign(36,StpPlus)),
+					asserta(dot_product(41,45,46,47,51,53)),
+					asserta(matrice_vettore(34,38,39,40,41)),
+					asserta(matrice_matrice(57,31,32,33,34)),
+
+					save(scan(39,43,36)),
+					save(scan(32,42,36)),
+					save(assign(36,StpPlus)),
+					save(dot_product(41,45,46,47,51,53)),
+					save(matrice_vettore(34,38,39,40,41)),
+					save(matrice_matrice(57,31,32,33,34))
+					.
+
+confronto_minore(StpPlusMul,First) :-
+					compare(>, StpPlusMul, First);compare(=, StpPlusMul, First).
+
+confronto_maggiore(StpPlusMul,Last) :-
+					compare(=, StpPlusMul, Last);compare(<, StpPlusMul, Last).
+
+
+verifica_indici([A1,A2|As],[B1,B2|Bs],[C1,C2|Cs]):-	compare(=,A1,C1),
+							compare(=,A2,B1),
+							compare(=,C2,B2)
+.
+
+verifica_dim([[A1,Ariga|A2],[A3,Acolonna|A4]|As],[[B1,Briga|B2],[B3,Bcolonna|B4]|Bs],DimI,DimJ,DimZ):-
+							(compare(<,DimZ,Acolonna);compare(=,DimZ,Acolonna)),
+							(compare(<,DimZ,Briga);compare(=,DimZ,Briga)),
+							(compare(<,DimI,Ariga);compare(=,DimI,Ariga)),
+							(compare(<,DimJ,Bcolonna);compare(=,DimJ,Bcolonna)).
+
+
+subscr_list_eqv([X|Xs],[Y|Ys],Class,Method) :- 		compare(=, X, Y),
+                                			subscr_list_eqv(Xs,Ys,Class,Method).
+subscr_list_eqv([],[],Class,Method).
+
+save(A) :- append(out),write(A),nl,told.

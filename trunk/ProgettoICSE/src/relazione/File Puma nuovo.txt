@@ -1,0 +1,1005 @@
+/*_____________________________________________________________________________________*/
+//. nome modulo                 : 		TraverseSyntaxTree
+//. descrizione					: 		modulo responsabile della creazione del file
+//.										SyntaxTree.pl
+/*_____________________________________________________________________________________*/
+
+// Nome oggetto generato
+TRAFO	TraverseSyntaxTree
+// Alberi gestiti
+TREE	Tree
+// Subroutine visibile all esterno
+PUBLIC	TraverseSyntaxTree
+
+GLOBAL 
+{
+		# include "definizioni.h"
+		# include "string.h"
+		char   id_method[BASEMAX] = "null";
+		char   id_class[BASEMAX]  = "null";
+		FILE * syntree_file;
+		rbool 	flag_error = rfalse;
+		rbool   flag_get_container_id = rfalse;
+		char	main_if[BASEMAX];
+		char 	kb[INDICEMAX][BASEMAX];
+		int  	indice_kb = 0;
+		char 	temp[BASEMAX] ;
+		char 	array_type[BASEMAX];
+		int  	array_dim   = 0;
+		int  	id_assign_r = 0;
+		int  	id_ref = 0;
+		int     id_operand = 1000;
+		char 	array_ranges[BASEMAX] ;
+		int 	id_container_number = 0;
+		char	id_container_string[BASEMAX]; 
+		char	id_assign_string[BASEMAX]; 
+		
+}
+
+/*........................................................................*/
+//. PROCEDURE INIT
+//. descrizione: inizializzazione variabili globali 
+/*........................................................................*/  
+  PROCEDURE init() 
+  LOCAL {} 
+  
+/*........................................................................*/
+//. PROCEDURE REPORT
+//. descrizione: reporting
+/*........................................................................*/  
+   PROCEDURE report()   
+   LOCAL { int k = 0;
+			  syntree_file = fopen(FILE_SYNTREE,"w");
+			  // riempio il file con i fatti trovati
+			  for (k=0;k<indice_kb;k++)
+		      { 
+				fprintf(syntree_file,kb[k]);
+		      } 	  
+			  fclose(syntree_file);
+		 } 
+   
+/*........................................................................*/
+//. PROCEDURA TraverseSyntaxTree
+//. descrizione: è la procedura principale, quella visibile all esterno
+/*........................................................................*/
+PROCEDURE TraverseSyntaxTree (Tree) 
+  t :-  
+  init();            /*inizializzo tutte le variabili globali*/
+  main_trip (t);     /*trip principale*/
+  
+  IF flag_error == rfalse THEN 
+  report();          /*report*/
+  END    
+  .
+
+/*........................................................................*/
+//. TRIP MAIN_TRIP
+//. descrizione: il trip main_trip analizza..
+/*........................................................................*/
+  TRIP main_trip (Tree)			
+
+/**********************************************************************/
+//   tipo nodo :  Classe
+/**********************************************************************/   
+n:class_ (...) :-
+// get the identifier
+		strcpy(id_class,GetCStr(n::ident));
+		main_trip (n::block);
+// reset identifier and go on		
+		strcpy(id_class,"null");
+		main_trip (n::next);
+		.
+
+/**********************************************************************/
+//   tipo nodo :  Method
+/**********************************************************************/ 
+   n:method (...) :-
+// get the identifier
+		strcpy(id_method,GetCStr(n::ident));
+		main_trip (n::statement_list);
+// reset identifier and go on		
+		strcpy(id_method,"null");
+		main_trip(n::next);
+	.
+
+/**********************************************************************/
+//   tipo nodo :  Espressione
+/**********************************************************************/ 
+ n:expression_stmt (...) :-   
+
+		 IF flag_get_container_id == rtrue 
+			THEN 
+				 id_container_number := n::ID + 1 ;
+				 get_container_id(EXPRESSION);
+    		END
+			main_trip(n::expression); 
+			main_trip(n::next);
+ 	.
+	
+/**********************************************************************/
+//   tipo nodo :  dichiarazione di una lista di variabili
+/**********************************************************************/   
+n:var_decl_stmt (...) :-
+   id_container_number:= n::ID +1 ;
+   flag_get_container_id = rfalse;
+   main_trip (n::decl_list);
+   flag_get_container_id = rtrue;
+   id_container_number = 0 ;
+   main_trip (n::next);
+   .
+  
+/**********************************************************************/
+//   tipo nodo : dichiarazione di uno scalare
+/**********************************************************************/      
+n:variable( type := simple_type(...)) :- 
+// prelevo le informazioni sul nodo
+	get_variable_info(n); 
+// continuo a cercare informazioni nel prossimo nodo
+	main_trip(n::next);
+.
+		
+/**********************************************************************/
+//   tipo nodo : dichiarazione di un array 
+/**********************************************************************/      
+n:variable( type 	   := array_type(...) , 
+		    expression := new_array_expr(...)) :-
+		// prelevo le informazioni sul nodo
+		get_variable_array_info(n);
+		// continuo a cercare informazioni nel prossimo nodo
+		main_trip(n::next);
+		.
+
+/**********************************************************************/
+//   tipo nodo :  ciclo for
+/**********************************************************************/   
+n:for_stmt (...) :-
+   get_for_stmt_info(n);
+   // corpo for?	
+   flag_get_container_id = rtrue;
+   main_trip (n::statement_list);
+   // dopo il for
+   main_trip (n::next);
+   .
+
+/**********************************************************************/
+//   tipo nodo :  i++,i--....
+/**********************************************************************/ 
+n: unary_expr(Operator := (op_post_incr)) :-   
+   get_unary_expr_info(n); .
+
+/**********************************************************************/
+//   tipo nodo :  id = _
+/**********************************************************************/ 
+ n:assign_expr(lval := ident(...) ,  rval := int_literal(...))    ;
+ n:assign_expr(lval := ident(...) ,  rval := double_literal(...)) ; 
+ n:assign_expr(lval := ident (...) , rval:= subscript_expr(...))  ; 
+ n:assign_expr(lval := ident (...) , rval:= ident(...)) :- 
+	get_scalar_assign_info(n::lval);
+	print_assign_r_info(n::rval);
+	get_equal_info(n::rval);
+	.  
+/**********************************************************************/
+//   tipo nodo :  id = method
+/**********************************************************************/  
+ n:assign_expr(lval := ident(...) ,  rval := call_expr(expression := qualification(...))) :-
+	get_scalar_assign_info(n::lval);
+	get_call_expr_info(n::rval);
+    .
+	
+	
+/**********************************************************************/
+//   tipo nodo :  array = _
+/**********************************************************************/ 
+ n:assign_expr (lval := subscript_expr(...) , rval:= int_literal(...)) 	  ;
+ n:assign_expr (lval := subscript_expr(...) , rval:= ident(...)) 		  ;
+ n:assign_expr (lval := subscript_expr(...) , rval:= subscript_expr(...)) ;
+ n:assign_expr (lval := subscript_expr(...) , rval:= double_literal(...)) :-  
+	get_array_assign_info(n::lval);
+	print_assign_r_info(n::rval);
+	get_equal_info(n::rval);
+	.  		
+   
+/**********************************************************************/
+//   tipo nodo :  array = method
+/**********************************************************************/ 
+ n:assign_expr(lval := subscript_expr(...) ,  rval := call_expr(expression := qualification(...))) :-
+	get_array_assign_info(n::lval);
+	get_call_expr_info(n::rval);
+    .
+	   
+   
+   
+/**********************************************************************/
+//   tipo nodo :  array[]... = espressione binaria
+/**********************************************************************/ 
+ n:assign_expr (lval := subscript_expr(...), rval:= binary_expr(...)) :-   
+   get_array_assign_info(n::lval);
+   print_assign_r_info(n::rval); 
+   main_trip (n::rval);
+   .
+
+/**********************************************************************/
+//   tipo nodo :  id = espressione binaria
+/**********************************************************************/ 
+ n:assign_expr (lval := ident (...) , rval:= binary_expr(...)) :- 
+	get_scalar_assign_info(n::lval);
+	print_assign_r_info(n::rval);
+	main_trip (n::rval);
+	.  	
+
+/**********************************************************************/
+//   tipo nodo :  espressione binaria
+/**********************************************************************/ 	
+ n:binary_expr(...) :- get_binary_expr_info(n); .
+
+  n:if_stmt(...) :- 
+  get_if_info(n);
+  main_trip(n::next);
+   .	
+   
+/**********************************************************************/ 
+//	Fine MAIN TRIP
+/**********************************************************************/ 
+
+
+
+/*........................................................................*/
+//. TRIP get_call_expr_info
+//. descrizione: preleva le informazioni sulla chiamata a funzione
+/*........................................................................*/	
+PROCEDURE get_call_expr_info(Tree)
+LOCAL { 		
+		char local_temp[BASEMAX] ;
+	  }
+	  
+n:call_expr(expression := qualification(...)) :-
+
+	 strcpy(local_temp, id_container_string );
+	 strcpy(temp,"");
+	 collect_parameters(n::expression_list);
+	 strcat(kb[indice_kb] , "chiamata" ); 
+	 print(INIZIO_FATTO);		
+		strcat( kb[indice_kb], local_temp );
+	 print(VIRGOLA);
+		strcat(kb[indice_kb], GetCStr(get_ident(n::expression))); 
+	 print(VIRGOLA);
+		strcat(kb[indice_kb], temp);
+		strcat(kb[indice_kb], "]");
+	 print(FINE_FATTO);	
+.
+
+/*........................................................................*/
+//. TRIP collect_parameters
+//. descrizione: 
+/*........................................................................*/	
+TRIP collect_parameters(Tree)
+
+n:expression_e(...) :- get_ref_info(n::expression);
+IF strcmp(temp,"") ==0 THEN  strcpy(temp,"[");
+						ELSE strcat(temp,","); END
+ strcat(temp,id_container_string);
+ collect_parameters(n::next);
+ .
+
+
+
+/*........................................................................*/
+//. TRIP GET_ELSE_INFO
+//. descrizione: preleva le informazioni su else, oppure else if
+/*........................................................................*/	
+PROCEDURE get_else_info(Tree)
+
+ n:compound_stmt(...) :-
+
+	strcat( kb[indice_kb] , ELSE_R ); 
+	print(INIZIO_FATTO);
+		strcat( kb[indice_kb], main_if );//id if precedente
+	 print(VIRGOLA);
+	    id_container_number = n::ID;
+		get_container_id(ELSE_ID); 
+		strcat( kb[indice_kb], id_container_string); 
+    print(FINE_FATTO);
+		main_trip(n::statement_list);	
+ .
+  n:if_stmt(...) :-
+	 strcat( kb[indice_kb] , ELSE_IF_R ); 
+	 print(INIZIO_FATTO);
+		strcat( kb[indice_kb], main_if );//id if precedente
+	 print(VIRGOLA);
+		id_container_number = n::ID;
+		get_container_id(ELSE_IF_ID); 
+		strcat( kb[indice_kb], id_container_string); 
+	print(VIRGOLA);
+		get_container_id(IF_EXPRESSION); 
+		strcat( kb[indice_kb], id_container_string);  
+	print(FINE_FATTO);
+	flag_get_container_id = rfalse; 
+	main_trip(n::expression);
+	flag_get_container_id = rtrue;
+	main_trip(n::then);
+	get_else_info(n::Else);
+ .
+	
+/*........................................................................*/
+//. TRIP GET_IF_INFO
+//. descrizione: preleva le informazioni sulla dichiarazione di una variabile
+/*........................................................................*/	
+PROCEDURE get_if_info(Tree) 		  
+
+n:if_stmt(...) :-	
+	 strcat( kb[indice_kb] , IF_R ); 
+	 print(INIZIO_FATTO);
+		id_container_number = n::ID;
+		get_container_id(IF_ID);
+		strcat( kb[indice_kb], id_container_string );
+		strcpy(main_if,id_container_string);
+	 print(VIRGOLA);
+		get_container_id(IF_EXPRESSION); 
+		strcat( kb[indice_kb], id_container_string); 
+	 print(VIRGOLA);	 
+		strcat( kb[indice_kb], id_class );
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], id_method );
+	 print(FINE_FATTO);	
+	flag_get_container_id = rfalse; 
+	main_trip(n::expression);
+	flag_get_container_id = rtrue; 
+	main_trip(n::then);
+    get_else_info(n::Else);
+	.	
+		
+/*........................................................................*/
+//. TRIP GET_VARIABLE_INFO
+//. descrizione: preleva le informazioni sulla dichiarazione di una variabile
+/*........................................................................*/
+  TRIP get_variable_info(Tree)  
+
+	n:variable(type := simple_type(...) ) :- 
+// la variabile è istanziata con un valore costante (un literal)
+	 strcat( kb[indice_kb] , DICHIARAZIONE_SCALARE ); 
+	 print(INIZIO_FATTO);
+		strcat( kb[indice_kb], GetCStr(n::ident) );
+	 print(VIRGOLA);
+		get_container_id(DEFINITION_LIST); 
+		strcat( kb[indice_kb], id_container_string);
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], id_class );
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], id_method );
+		print(FINE_FATTO);
+	
+// salvo il fatto che c'è un valore costante.
+	IF n::expression ?= int_literal(...) ;
+	   n::expression ?= double_literal(...);  
+	   n::expression ?= ident(...) 			THEN
+	 get_equal_info(n::expression);
+	 print_assign_r_info(n::expression);
+	END
+	.
+	
+/*........................................................................*/
+//. TRIP GET_VARIABLE_ARRAY_INFO
+//. descrizione: preleva le informazioni sulla dichiarazione di una variabile di tipo array
+/*........................................................................*/
+  PROCEDURE get_variable_array_info(Tree)  
+  
+	n:variable(type := array_type(...) , expression := new_array_expr(...) ) :- 
+// la variabile è istanziata con un valore costante (un literal)
+	 strcat( kb[indice_kb] , DICHIARAZIONE_ARRAY ); 
+	 print(INIZIO_FATTO);
+		strcat( kb[indice_kb], GetCStr(n::ident) );
+	 print(VIRGOLA);
+		strcpy(array_type,""); array_dim = 0;
+		get_type_and_dim(n::type);
+		strcat( kb[indice_kb], array_type );
+	 print(VIRGOLA);
+		sprintf(temp,"%d", array_dim); 
+		strcat( kb[indice_kb], temp );
+	 print(VIRGOLA);
+		get_container_id(DEFINITION_LIST); 
+		strcat( kb[indice_kb], id_container_string);
+	 print(VIRGOLA);
+		strcpy(array_ranges,"");
+		get_array_index_list(n::expression);
+		strcat( kb[indice_kb], array_ranges );
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], id_class );
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], id_method );
+	 print(FINE_FATTO);
+    .
+	
+/*........................................................................*/
+//. PROCEDURE PRINT_VALUE
+//. descrizione: stampa il valore da un nodo di tipo literal sulla variabile temp
+/*........................................................................*/
+ PROCEDURE print_value(Tree)
+  
+  n:char_literal 	:- sprintf(temp,"%s",n::value);  .
+  n:string_literal  :- sprintf(temp,"%s",n::value);  .
+  n:int_literal     :- sprintf(temp,"%d",n::value);  .
+  n:long_literal    :- sprintf(temp,"%l",n::value);  .
+  n:bool_literal    :- sprintf(temp,"%s",n::value);  .
+  n:float_literal   :- sprintf(temp,"%l",n::value);  .
+  n:double_literal  :- sprintf(temp,"%f",n::value);  .
+  
+/*........................................................................*/
+//. PROCEDURE DEBUG
+//. descrizione: usata usata per debug
+/*........................................................................*/
+  PROCEDURE debug( number : short)  
+  number := _ :-
+  printf("DEBUG: %d \n",number);
+  . 		 
+  
+/*........................................................................*/
+//. FUNCTION GET_IDENT
+//. descrizione: il FUNCTION GET_IDENT restituisce un id
+/*........................................................................*/
+  FUNCTION get_ident (Tree) tIdent   
+  n:ident(...) 		  ;
+  n:qualification(...):-
+  RETURN n::ident;
+  .  
+  
+/*........................................................................*/
+//. FUNCTION get_expression_id
+//. descrizione: restituisce l'identificativo (un numero) dell espressione
+/*........................................................................*/
+  FUNCTION get_expression_id(Tree)    int
+  n: expression_stmt(...) :-
+  RETURN n::ID;
+  .  
+  
+/*........................................................................*/
+//. PROCEDURE get_type_and_dim 
+//. descrizione: ricava il tipo e la dimensione di un array
+/*........................................................................*/
+   PROCEDURE get_type_and_dim(Tree)
+	n:simple_type(type:=1) :- strcpy(array_type,"boolean"); .
+	n:simple_type(type:=2) :- strcpy(array_type,"byte"	 ); .
+	n:simple_type(type:=3) :- strcpy(array_type,"char"	 ); .
+	n:simple_type(type:=4) :- strcpy(array_type,"double" ); .
+	n:simple_type(type:=5) :- strcpy(array_type,"float"	 ); .
+	n:simple_type(type:=6) :- strcpy(array_type,"int"	 ); .
+	n:simple_type(type:=7) :- strcpy(array_type,"long"	 ); .
+	n:simple_type(type:=8) :- strcpy(array_type,"short"	 ); .
+    
+	n:array_type(...) :- 
+	array_dim = array_dim + 1; 
+	get_type_and_dim(n::type); 
+	.
+
+/*........................................................................*/
+//. PROCEDURE get_for_stmt_info	
+//. descrizione: for(...){}
+//. 	A= identificativo ciclo for
+//. 	B= è un funtore con la struttura for(X,Y) con X uguale ad A e Y uguale a D
+//. 	C= identificativo espressione di inizializzazione
+//. 	D= identificativo espressione di uscita
+//. 	E= identificativo espressione di incremento
+//. 	F= classe
+//. 	G= metodo
+/*........................................................................*/
+PROCEDURE get_for_stmt_info(Tree)	
+
+LOCAL { 		
+		char local_temp[BASEMAX] ;
+	  }
+n:for_stmt(...) :-
+	 strcat( kb[indice_kb] , "for_r" ); 
+	 print(INIZIO_FATTO);
+		id_container_number = n::ID;
+		get_container_id(CICLO_FOR_ID);
+		strcat( kb[indice_kb], id_container_string );
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], "for(");
+		strcat( kb[indice_kb], id_container_string );
+		print(VIRGOLA);	
+		get_container_id(CICLO_FOR_EXIT); 
+		strcpy(local_temp,id_container_string);
+		strcat( kb[indice_kb], local_temp);
+		strcat( kb[indice_kb], ")");
+		 
+	 print(VIRGOLA);
+		id_container_number = get_expression_id(n::for_init);
+		get_container_id(CICLO_FOR_INIT);
+		strcat( kb[indice_kb], id_container_string);
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], local_temp);
+	 print(VIRGOLA);
+		id_container_number = get_expression_id(n::for_incr);
+		get_container_id(CICLO_FOR_INCR);
+		strcat( kb[indice_kb], id_container_string);
+		
+	 print(VIRGOLA);	 
+		strcat( kb[indice_kb], id_class );
+	 print(VIRGOLA);
+		strcat( kb[indice_kb], id_method );
+	 print(FINE_FATTO);	
+	 
+	flag_get_container_id = rfalse; 
+		id_container_number = get_expression_id(n::for_init);
+		get_container_id(CICLO_FOR_INIT); 
+		main_trip(n::for_init);
+		strcpy(id_container_string,local_temp);
+		main_trip(n::expression);
+		id_container_number = get_expression_id(n::for_incr);
+		get_container_id(CICLO_FOR_INCR);
+		main_trip(n::for_incr);
+	.
+
+/*........................................................................*/
+//. PROCEDURE get_unary_expr_info
+//. descrizione: preleva le info relative ad un espressione unaria
+//.
+/*........................................................................*/		 	
+PROCEDURE get_unary_expr_info(Tree)
+
+LOCAL { 		
+		char local_temp[BASEMAX] ;
+	  }
+	  
+n: unary_expr(Operator := (op_post_incr)) :-
+
+	strcpy(local_temp,id_container_string);	
+	get_ref_info(n::expression);
+
+	strcat( kb[indice_kb] , POST_INCREMENTO );
+ print(INIZIO_FATTO);
+ 	strcat( kb[indice_kb], local_temp);
+ print(VIRGOLA); 
+	strcat( kb[indice_kb],id_container_string) ; 
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_class );
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_method );
+ print(FINE_FATTO);	
+ .
+n: unary_expr(Operator := (op_pre_decr)) :-   
+	strcpy(local_temp,id_container_string);	
+	get_ref_info(n::expression);
+ strcat( kb[indice_kb] , POST_DECREMENTO );
+ print(INIZIO_FATTO);
+	strcat( kb[indice_kb],local_temp) ; 
+ print(VIRGOLA);
+ 	strcat( kb[indice_kb], id_container_string);
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_class );
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_method );
+ print(FINE_FATTO);	
+ .
+	
+	
+/*........................................................................*/
+//. PROCEDURE get_container_id
+//. descrizione: 
+/*........................................................................*/		 
+PROCEDURE get_container_id(number : short)
+// l'id dell'espressione di uscita di un for è l'incremento del numero precedente 
+// con un prefisso
+number := (CICLO_FOR_EXIT) :-	  
+	  id_container_number := id_container_number + 100; //genero un numero nuovo
+	  sprintf(id_container_string,CICLO_FOR_EXIT_PREFIX, id_container_number); 
+.
+ 
+number := (CICLO_FOR_INIT) :-	  
+	  sprintf(id_container_string,CICLO_FOR_INIT_PREFIX, id_container_number ); 
+.
+
+number := (CICLO_FOR_INCR) :-	  
+	  sprintf(id_container_string,CICLO_FOR_INCR_PREFIX, id_container_number ); 
+.
+
+number := (DEFINITION_LIST) :-	  
+	  sprintf(id_container_string,DEFINITION_LIST_PREFIX, id_container_number ); 
+.
+
+number := (CICLO_FOR_ID) :-	  
+	  sprintf(id_container_string,CICLO_FOR_ID_PREFIX, id_container_number ); 
+.
+
+number := (ASSIGN_R) :-	  
+	  id_assign_r = id_assign_r + 1;
+	  sprintf(id_assign_string,ASSIGN_R_PREFIX, id_assign_r ); 
+.
+
+number := (EXPRESSION) :-
+	sprintf(id_container_string,EXPRESSION_PREFIX, id_container_number ); 
+.
+
+number := (DOUBLE_REF) 	:- id_ref := id_ref + 1;
+	sprintf(id_container_string,DOUBLE_PREFIX, id_ref );
+.
+
+number := (INT_REF)	   :- id_ref := id_ref + 1;
+	sprintf(id_container_string,INT_PREFIX, id_ref );
+.
+
+number := (IDENT_REF)	:- id_ref := id_ref + 1;
+	sprintf(id_container_string,SCALAR_PREFIX, id_ref );
+.
+
+number := (ARRAY_REF)	:- id_ref := id_ref + 1;
+	sprintf(id_container_string,ARRAY_PREFIX, id_ref );
+.
+		
+number := (OPERAND) :- id_operand := id_operand + 1;
+	sprintf(id_container_string,OPERAND_PREFIX, id_operand );
+.
+
+number := (IF_ID) :- 
+	sprintf(id_container_string,IF_PREFIX, id_container_number);
+.
+
+number := (ELSE_ID) :- 
+	sprintf(id_container_string,ELSE_PREFIX, id_container_number);
+.
+
+number := (ELSE_IF_ID) :- 
+	sprintf(id_container_string,ELSE_IF_PREFIX, id_container_number);
+.
+
+number := (IF_EXPRESSION) :- id_container_number := id_container_number + 100;
+	sprintf(id_container_string,IF_EXPRESSION_PREFIX, id_container_number);
+.
+
+/*........................................................................*/
+//. PROCEDURE get_scalar_assign_info	
+//. descrizione: 
+//. scalar_var_inst(A,B,C,D) 
+//. A= identificativo espressione 
+//. B= id variabile
+//. C= classe
+//. D= metodo
+/*........................................................................*/
+TRIP get_scalar_assign_info(Tree)
+
+n: ident(...) :-
+ strcat( kb[indice_kb] , SCALAR_ASSIGN );
+ print(INIZIO_FATTO);
+ 	strcat( kb[indice_kb], id_container_string);
+ print(VIRGOLA);
+	strcat( kb[indice_kb],GetCStr(n::ident)) ; 
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_class );
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_method );
+ print(FINE_FATTO);	
+ .
+
+/*........................................................................*/ 
+//. PROCEDURE get_array_assign_info	
+/*........................................................................*/
+//. descrizione: 
+//. array_elem_inst(A,B,C,D,E) 
+//. A= identificativo espressione 
+//. B= id array
+//. C= array list nella forma [[][...]]
+//. D= classe
+//. E= metodo
+/*........................................................................*/
+TRIP  get_array_assign_info(Tree)
+ 
+ n:subscript_expr(...) :-
+ 
+ strcat( kb[indice_kb] , ARRAY_ASSIGN );
+ print(INIZIO_FATTO);
+	strcat( kb[indice_kb], id_container_string);
+ print(VIRGOLA);
+	strcat( kb[indice_kb], GetCStr(get_array_ident(n)));
+ print(VIRGOLA);
+    strcpy(array_ranges, ""); 
+	get_array_index_list(n);
+	strcat( kb[indice_kb], array_ranges);
+ print(VIRGOLA);	 
+	strcat( kb[indice_kb], id_class );
+ print(VIRGOLA);
+	strcat( kb[indice_kb], id_method );
+ print(FINE_FATTO);	
+ .
+
+/*........................................................................*/
+//. FUNCTION get_array_ident
+//. descrizione: funzione ricorsiva che ritorna l'identificativo array
+/*........................................................................*/ 
+FUNCTION get_array_ident(Tree) tIdent
+ n:subscript_expr(base := subscript_expr(...) )     :- RETURN get_array_ident(n::base); .  
+ n:subscript_expr(base := ident(ident := tIdent) ) 	:- RETURN get_ident(n::base); .
+ 
+/*........................................................................*/
+//. PROCEDURE print_assign_r_info	
+/*........................................................................*/
+//. descrizione: 
+//. assign_r(A,B,C,D,E,F) 
+//. A= identificativo assignment ( un progressivo )
+//. B= assign(A,C)
+//. C= id_container
+//. E= metodo
+//. F= classe
+/*........................................................................*/
+ PROCEDURE print_assign_r_info(Tree)
+ n:binary_expr(...) :-  print_assign_r_i();.
+ n:ident(...) 		:-  print_assign_r_i();.
+ n:int_literal(...) :-  print_assign_r_i();.
+ n:subscript_expr(...) :-  print_assign_r_i();.
+ 
+ 
+ PROCEDURE print_assign_r_i() 
+ LOCAL 
+ {
+//	  strcat( kb[indice_kb] , ASSIGN );
+//	 print(INIZIO_FATTO);
+//		get_container_id(ASSIGN_R);
+//		strcat( kb[indice_kb], id_assign_string);
+//	 print(VIRGOLA); 	
+//		strcat( kb[indice_kb], "assign(");
+//				strcat( kb[indice_kb], id_assign_string);
+//			print(VIRGOLA); 		
+//				strcat( kb[indice_kb], id_container_string );
+//		strcat( kb[indice_kb], ")");		
+//	 print(VIRGOLA);
+//		strcat( kb[indice_kb], id_container_string );
+//	 print(VIRGOLA);	
+//		strcat( kb[indice_kb], id_class );
+//	 print(VIRGOLA);
+//		strcat( kb[indice_kb], id_method );
+//	 print(FINE_FATTO);	
+ } 
+ 
+/*........................................................................*/
+//. PROCEDURE get_binary_expr_info	
+/*........................................................................*/
+//. descrizione: 
+//. plus,minus,divide,times(A,B,C,D,E) 
+//. A= identificativo container
+//. B= operando1
+//. C= operando2
+//. E= metodo
+//. F= classe
+/*........................................................................*/
+PROCEDURE get_binary_expr_info(Tree)
+LOCAL 
+{
+ char my_operand1[BASEMAX] ; 
+ char my_operand2[BASEMAX] ; 
+ char my_container[BASEMAX] ; 
+}
+// OP1 - OP2 
+n:binary_expr(Operator :=(op_minus)) ;
+n:binary_expr(Operator :=(op_times)) ;
+n:binary_expr(Operator :=(op_plus))   ;
+n:binary_expr(Operator :=(op_divide)) ;
+n:binary_expr(Operator :=(op_less))   ;
+n:binary_expr(Operator :=(op_equal))   ;
+n:binary_expr(Operator :=(op_not_equal))   :-
+
+strcpy(my_container,id_container_string);
+get_operand_info(n::lop); 
+strcpy(my_operand1,temp);
+get_operand_info(n::rop); 
+strcpy(my_operand2,temp);
+
+IF n ?= binary_expr(Operator := (op_minus) ) THEN strcat(kb[indice_kb],MINUS);  END
+IF n ?= binary_expr(Operator := (op_times) ) THEN strcat(kb[indice_kb],TIMES);  END
+IF n ?= binary_expr(Operator := (op_plus)  ) THEN strcat(kb[indice_kb],PLUS);   END
+IF n ?= binary_expr(Operator := (op_divide)) THEN strcat(kb[indice_kb],DIVIDE); END
+IF n ?= binary_expr(Operator := (op_less)  ) THEN strcat(kb[indice_kb],LESS);   END
+IF n ?= binary_expr(Operator := (op_equal)  ) THEN strcat(kb[indice_kb],EQUAL);   END
+IF n ?= binary_expr(Operator := (op_not_equal)  ) THEN strcat(kb[indice_kb],NOT_EQUAL);   END
+print(INIZIO_FATTO);
+	strcat(kb[indice_kb],my_container);
+print(VIRGOLA);	 
+	strcat(kb[indice_kb],my_operand1);
+print(VIRGOLA);
+	strcat(kb[indice_kb],my_operand2);
+print(VIRGOLA);	
+	strcat(kb[indice_kb],id_class);
+print(VIRGOLA);
+	strcat(kb[indice_kb],id_method);
+print(FINE_FATTO);
+.
+  
+/*........................................................................*/
+//. FUNCTION get_array_index_list
+//. descrizione: funzione per prelevare gli indici degli array in una def-uso
+//. gestiti solo indici di tipo identificativo o costante
+/*........................................................................*/ 
+TRIP get_array_index_list(Tree)
+//[altro][costante]
+ n:subscript_expr(base := subscript_expr(...), index := int_literal(...) ) :-  
+ 
+  print_value(n::index);
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" );  //temp = numero]  
+								 ELSE strcat( temp, "," );  //temp = numero,
+									  strcat( temp,array_ranges); //temp = numero,altro
+  END									
+  strcpy( array_ranges, temp);
+  get_array_index_list(n::base);
+  .
+//[altro][id]  
+  n:subscript_expr(base := subscript_expr(...) , index := ident(...)) :-
+  strcpy( temp, GetCStr(get_ident(n::index))); // temp = id
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" ); // temp = id]
+								 ELSE strcat( temp, "," ); // temp = id,
+									strcat( temp,array_ranges);  // temp = id,...
+  END									
+  strcpy( array_ranges, temp);
+  get_array_index_list(n::base);
+  .
+  
+//id_array[costante]... 
+  n:subscript_expr(base := ident(...), index := int_literal(...) ) :-  
+ 
+  print_value(n::index);
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" );
+								 ELSE strcat( temp, "," );
+									  strcat(temp,array_ranges);
+  END							
+  strcpy(array_ranges,"[");
+  strcat(array_ranges, temp );
+  .
+
+//id_array[id]...  
+  n:subscript_expr(base := ident(...) , index := ident(...)) :-
+  strcpy( temp, GetCStr(get_ident(n::index)));
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" );
+								 ELSE strcat( temp, "," );
+								 strcat(temp,array_ranges);
+  END									
+  strcpy(array_ranges,"[");
+  strcat(array_ranges, temp );
+  .
+  
+  n:new_array_expr(...) :- get_array_index_list(n::type); 
+  .
+  
+  n:array_type(type := array_type(...), expression := int_literal(...)) :-
+  
+  print_value(n::expression);
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" );  //temp = numero]  
+								 ELSE strcat( temp, "," );  //temp = numero,
+									  strcat( temp,array_ranges); //temp = numero,altro
+  END									
+  strcpy( array_ranges, temp);
+  get_array_index_list(n::type);
+  .
+ 
+  n:array_type(type := array_type(...), expression := ident(...)) :- 
+  strcpy( temp, GetCStr(get_ident(n::expression))); // temp = id
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" ); // temp = id]
+								 ELSE strcat( temp, "," ); // temp = id,
+	   								  strcat( temp,array_ranges);  // temp = id,...
+  END									
+  strcpy( array_ranges, temp);
+  get_array_index_list(n::type);
+  .
+  
+  n:array_type(type := simple_type(...), expression := int_literal(...)) :-
+  print_value(n::expression);
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" );
+								 ELSE strcat( temp, "," );
+									  strcat(temp,array_ranges);
+  END							
+  strcpy(array_ranges,"[");
+  strcat(array_ranges, temp );
+  .
+  n:array_type(type := simple_type(...), expression := ident(...)) :-
+  strcpy( temp, GetCStr(get_ident(n::expression)));
+  IF strcmp(array_ranges,"") ==0 THEN strcat( temp, "]" );
+								 ELSE strcat( temp, "," );
+								 strcat(temp,array_ranges);
+  END									
+  strcpy(array_ranges,"[");
+  strcat(array_ranges, temp );
+  .
+ 
+/*........................................................................*/
+//. PROCEDURE print
+//. descrizione: procedura per aumentare la leggibilità dal codice.
+/*........................................................................*/
+PROCEDURE print( number : short)
+number := (INIZIO_FATTO) :- strcat( kb[indice_kb] , "(" );   .
+number := (VIRGOLA) 	 :- strcat( kb[indice_kb], "," );    .
+number := (FINE_FATTO) 	 :- strcat( kb[indice_kb], ").\n" ); 	 
+							indice_kb := indice_kb + 1;
+							.							
+/*........................................................................*/
+//. PROCEDURE get_operand_info
+//. descrizione: informazioni operando
+/*........................................................................*/							
+TRIP get_operand_info(Tree)							
+	LOCAL
+	{
+		char my_temp[BASEMAX] ;	
+	}
+	n:ident(...) ; 
+	n:int_literal(...) ; 
+	n:double_literal(...);        	  
+	n:subscript_expr(...):- 
+		get_ref_info(n); 
+		strcpy(temp,id_container_string);
+	.
+	
+	n:binary_expr(...) :-
+	get_container_id(OPERAND); 
+	strcpy(my_temp,id_container_string);
+		main_trip(n);
+	strcpy(temp,my_temp);
+	.
+/*........................................................................*/
+//. PROCEDURE get_equal_info
+//. descrizione: recupero delle informazioni su uno statement di uguaglianza
+/*........................................................................*/								
+PROCEDURE get_equal_info(Tree)
+	LOCAL
+		{
+			char my_temp[BASEMAX] ;	
+		}
+	n:ident(...)          ; 
+	n:double_literal(...) ; 
+	n:int_literal(...) 	  ; 
+	n:subscript_expr(...) :- 
+
+	strcpy(my_temp,id_container_string);
+	get_ref_info(n);
+	
+	strcat(kb[indice_kb],UGUAGLIANZA);
+	print(INIZIO_FATTO);
+		strcat(kb[indice_kb],my_temp);
+	print(VIRGOLA);		
+		strcat(kb[indice_kb],id_container_string);
+	print(VIRGOLA);	
+		strcat(kb[indice_kb],id_class);
+	print(VIRGOLA);
+		strcat(kb[indice_kb],id_method);
+	print(FINE_FATTO);
+    .
+
+/*........................................................................*/
+//. PROCEDURE get_ref_info
+//. descrizione: recupero delle informazioni su un riferimento
+/*........................................................................*/								
+PROCEDURE get_ref_info(Tree) 
+
+n:ident(...):- 
+	strcat(kb[indice_kb],IDENT);
+	print(INIZIO_FATTO); 
+	get_container_id(IDENT_REF);
+		strcat(kb[indice_kb],id_container_string);
+	print(VIRGOLA);
+		strcat(kb[indice_kb],GetCStr(get_ident(n)));
+	print(FINE_FATTO);
+.
+n:double_literal(...):-
+	strcat(kb[indice_kb],COSTANTE);
+	print(INIZIO_FATTO); 
+		get_container_id(DOUBLE_REF);
+		strcat(kb[indice_kb],id_container_string);
+	print(VIRGOLA);
+		print_value(n); strcat(kb[indice_kb],temp);
+	print(FINE_FATTO);
+.
+n:int_literal(...):- 
+	strcat(kb[indice_kb],COSTANTE);
+	print(INIZIO_FATTO); 
+		get_container_id(INT_REF);
+		strcat(kb[indice_kb],id_container_string);
+	print(VIRGOLA);
+		print_value(n); strcat(kb[indice_kb],temp);
+	print(FINE_FATTO);
+.
+n:subscript_expr(...):-
+	strcat(kb[indice_kb],ARRAY);
+	print(INIZIO_FATTO); 
+		get_container_id(ARRAY_REF);
+		strcat(kb[indice_kb],id_container_string);
+	print(VIRGOLA);		
+		strcat( kb[indice_kb], GetCStr(get_array_ident(n)));
+	print(VIRGOLA);
+		strcpy(array_ranges, ""); 
+		get_array_index_list(n);
+		strcat( kb[indice_kb], array_ranges);
+	print(FINE_FATTO);
+	.

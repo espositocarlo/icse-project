@@ -73,13 +73,13 @@
 								modulo(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								xor(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								less(Stp,Op1Stp,Op2Stp,Class,Method) ;
-								less_equal(Stp,Op1Stp,Op2Stp,Class,Method) ; 
+								less_equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								greater(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								greater_equal(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								left_shift(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								right_shift(Stp,Op1Stp,Op2Stp,Class,Method) ;
 								unsigned_right_shift(Stp,Op1Stp,Op2Stp,Class,Method) .
-							
+
 
   unary_exp(Stp,OpStp,Class,Method) :- 	                 	complement(Stp,OpStp,Class,Method) ;
 								sign_negate(Stp,OpStp,Class,Method) ;
@@ -103,136 +103,136 @@
                     						array_elem_inst(Y,SameArrIdent,SubScrListY,Class,Method),
                     						equiv_subscr_list(SubScrListX,SubScrListY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				plus(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				plus(X,Op1X,Op2X,Class,Method),
   								comm_add_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				minus(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				minus(X,Op1X,Op2X,Class,Method),
   								minus(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				times(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				times(X,Op1X,Op2X,Class,Method),
   								comm_mul_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				divide(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				divide(X,Op1X,Op2X,Class,Method),
   								divide(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				sign_negate(X,OpX,Class,Method), 
-  								sign_negate(Y,OpY,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				sign_negate(X,OpX,Class,Method),
+  								sign_negate(Y,OpY,Class,Method),
   								equiv_exp(OpX,OpY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				equal(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				equal(X,Op1X,Op2X,Class,Method),
   								comm_equal_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				not_equal(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				not_equal(X,Op1X,Op2X,Class,Method),
   								not_equal(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				and(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				and(X,Op1X,Op2X,Class,Method),
   								comm_and_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				xor(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				xor(X,Op1X,Op2X,Class,Method),
   								comm_xor_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				or(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				or(X,Op1X,Op2X,Class,Method),
   								comm_or_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				and_and(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				and_and(X,Op1X,Op2X,Class,Method),
   								comm_and_and_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				or_or(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				or_or(X,Op1X,Op2X,Class,Method),
   								comm_or_or_exp(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				modulo(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				modulo(X,Op1X,Op2X,Class,Method),
   								modulo(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				less(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				less(X,Op1X,Op2X,Class,Method),
   								less(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				less_equal(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				less_equal(X,Op1X,Op2X,Class,Method),
   								less_equal(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				greater(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				greater(X,Op1X,Op2X,Class,Method),
   								greater(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				greater_equal(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				greater_equal(X,Op1X,Op2X,Class,Method),
   								greater_equal(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				left_shift(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				left_shift(X,Op1X,Op2X,Class,Method),
   								left_shift(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				right_shift(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				right_shift(X,Op1X,Op2X,Class,Method),
   								right_shift(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				unsigned_right_shift(X,Op1X,Op2X,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				unsigned_right_shift(X,Op1X,Op2X,Class,Method),
   								unsigned_right_shift(Y,Op1Y,Op2Y,Class,Method),
-                    						equiv_exp(Op1X,Op1Y,Class,Method), 
+                    						equiv_exp(Op1X,Op1Y,Class,Method),
                     						equiv_exp(Op2X,Op2Y,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				complement(X,OpX,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				complement(X,OpX,Class,Method),
   								complement(Y,OpY,Class,Method),
                     						equiv_exp(OpX,OpY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				post_decr(X,OpX,Class,Method), 
-  								post_decr(Y,OpY,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				post_decr(X,OpX,Class,Method),
+  								post_decr(Y,OpY,Class,Method),
   								equiv_exp(OpX,OpY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				post_incr(X,OpX,Class,Method), 
-  								post_incr(Y,OpY,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				post_incr(X,OpX,Class,Method),
+  								post_incr(Y,OpY,Class,Method),
   								equiv_exp(OpX,OpY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				pre_decr(X,OpX,Class,Method), 
-  								pre_decr(Y,OpY,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				pre_decr(X,OpX,Class,Method),
+  								pre_decr(Y,OpY,Class,Method),
   								equiv_exp(OpX,OpY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				pre_incr(X,OpX,Class,Method), 
-  								pre_incr(Y,OpY,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				pre_incr(X,OpX,Class,Method),
+  								pre_incr(Y,OpY,Class,Method),
   								equiv_exp(OpX,OpY,Class,Method).
 
-  equiv_exp(X,Y,Class,Method) :- 				not_exp(X,OpX,Class,Method), 
-  								not_exp(Y,OpY,Class,Method), 
+  equiv_exp(X,Y,Class,Method) :- 				not_exp(X,OpX,Class,Method),
+  								not_exp(Y,OpY,Class,Method),
   								equiv_exp(OpX,OpY,Class,Method).
 
   equiv_subscr_list([X|Xs],[Y|Ys],Class,Method) :- 		equiv_exp(X,Y,Class,Method),
                                       				equiv_subscr_list(Xs,Ys,Class,Method).
-  
+
   equiv_subscr_list([],[],Class,Method).
 
 /*********************************************************************************************************/
-  
+
   var_inst(Stp,Ident,Class,Method) :- 				scalar_var_inst(Stp,Ident,Class,Method).
 
   var_inst(Stp,Ident,Class,Method) :- 				array_elem_inst(Stp,Ident,SubScrList,Class,Method).
@@ -240,31 +240,31 @@
   inst(Stp,ValOrIdent,Class,Method) :- 				var_inst(Stp,ValOrIdent,Class,Method).
 
   inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		inst(ExpStp,ValOrIdent,Class,Method).
-  
+
   inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
-										( 
+										(
 										inst_in_exp(ValOrIdent,Op1Stp,Class,Method) ;
 								      	inst_in_exp(ValOrIdent,Op2Stp,Class,Method)
 										).
-								
+
   inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		unary_exp(ExpStp,OpStp,Class,Method),
                                     				inst_in_exp(ValOrIdent,OpStp,Class,Method).
-                                    				
+
   inst_in_exp(ValOrIdent,ExpStp,Class,Method) :- 		array_elem_inst(ExpStp,Dummy,SubScrList,Class,Method),
                                     				member(SubScrExp,SubScrList,Class,Method),
                                     				inst_in_exp(ValOrIdent,SubScrExp,Class,Method).
 
   inst_in_exp(ValOrIdent,ExpStp,ExpStp,Class,Method) :- 	inst(ExpStp,ValOrIdent,Class,Method).
-  
+
   inst_in_exp(ValOrIdent,InstStp,ExpStp,Class,Method) :-	binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
-										( 
+										(
 										inst_in_exp(ValOrIdent,InstStp,Op1Stp,Class,Method) ;
 								      	inst_in_exp(ValOrIdent,InstStp,Op2Stp,Class,Method)
 										).
-								
+
   inst_in_exp(ValOrIdent,InstStp,ExpStp,Class,Method) :-	unary_exp(ExpStp,OpStp,Class,Method),
                                     				inst_in_exp(ValOrIdent,InstStp,OpStp,Class,Method).
-  
+
   inst_in_exp(ValOrIdent,InstStp,ExpStp,Class,Method) :-	array_elem_inst(ExpStp,Dummy,SubScrList,Class,Method),
                                     				member(SubScrExp,SubScrList,Class,Method),
                                     				inst_in_exp(ValOrIdent,InstStp,SubScrExp,Class,Method).
@@ -274,15 +274,15 @@
 
   inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :-		not( member(ExpStp,SubExpStpList) ),
 															binary_exp(ExpStp,Op1Stp,Op2Stp,Class,Method),
-															( 
+															(
 															inst_in_exp_notcheck_subexps(ValOrIdent,Op1Stp,SubExpStpList,Class,Method) ;
 															inst_in_exp_notcheck_subexps(ValOrIdent,Op2Stp,SubExpStpList,Class,Method)
 															).
- 
+
   inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :- 	not( member(ExpStp,SubExpStpList) ),
 											unary_exp(ExpStp,OpStp,Class,Method),
 											inst_in_exp_notcheck_subexps(ValOrIdent,OpStp,SubExpStpList,Class,Method).
- 
+
   inst_in_exp_notcheck_subexps(ValOrIdent,ExpStp,SubExpStpList,Class,Method) :- 	not( member(ExpStp,SubExpStpList) ),
 											array_elem_inst(ExpStp,Dummy,SubScrList,Class,Method),
 											member(SubScrExp,SubScrList),
@@ -311,7 +311,7 @@
   exp_in_stm(ExpStp,IDass,Assign) :- assign_r(IDass,Assign,ExpStp,Class,Method).
 
   exp_in_stm(ExpStp,IDdo,For) :- for_r(IDfor,For,InitExpStp,ExpStp,StepExpStp,Class,Method),
-                               	( 
+                               	(
                                  	  sub_exp_in_exp(ExpStp,InitExpStp,Class,Method) ;
                                       sub_exp_in_exp(ExpStp,StepExpStp,Class,Method)
                                     ).
@@ -321,7 +321,7 @@
 
 
   exp_in_stm(ExpStp,IDwhile,While) :- while_r(IDwhile,While,ExpStp,Class,Method).
-                               
+
 
   exp_in_stm(ExpStp,IDdo_while,Do_while) :- do_while_r(IDdo_while,Do_while,ExpStp,Class,Method).
 
@@ -333,57 +333,57 @@
   exp_in_stm(ExpStp,IDif,If) :- if_r(IDif,If,ExpStp,Class,Method).
 
   exp_in_stm(ExpStp,IDswitch,Switch) :- switch_r(IDswitch,Switch,Ident_label,Class,Method).
-            
+
   exp_in_stm(ExpStp,IDassert,Assert) :- assert_r(IDassert,Assert,Class,Method).
 
   exp_in_stm(ExpStp,IDbreak,Break) :- break_r(IDbreak,Break,Ident_label,Class,Method).
 
-  
 
- 
+
+
 /***************************************************************************************************/
 /*********** questo va bene *****************************************/
 
- inherit_dep(Concetto,ListaSottoConc) :- 
-    findall( AltroConc, 
-      ( 
-        between(1,Concetto,AltroConc), 
-        findall( DepBranch, 
-          ( member(DepBranch,[true,false]), 
-            ( ( forall( member(SottoConc1,ListaSottoConc), 
-                        control_dep(SottoConc1,AltroConc,DepBranch,Class,Method) ), 
-                not( member(AltroConc,ListaSottoConc) ) 
-              ) -> 
-              assert_ifnotalready(control_dep(Concetto,AltroConc,DepBranch,Class,Method)) ; 
-              true 
-            ),    
-            ( ( member(SottoConc2,ListaSottoConc), 
-                control_dep(AltroConc,SottoConc2,DepBranch,Class,Method), 
-                not( member(AltroConc,ListaSottoConc) )  
-              ) ->  
-              assert_ifnotalready(control_dep(AltroConc,Concetto,DepBranch,Class,Method)) ; 
-              true  
-            )     
-          ),      
-          DepBranchList ), 
-        forall( member(SottoConc3,ListaSottoConc), 
-                ( 
+ inherit_dep(Concetto,ListaSottoConc) :-
+    findall( AltroConc,
+      (
+        between(1,Concetto,AltroConc),
+        findall( DepBranch,
+          ( member(DepBranch,[true,false]),
+            ( ( forall( member(SottoConc1,ListaSottoConc),
+                        control_dep(SottoConc1,AltroConc,DepBranch,Class,Method) ),
+                not( member(AltroConc,ListaSottoConc) )
+              ) ->
+              assert_ifnotalready(control_dep(Concetto,AltroConc,DepBranch,Class,Method)) ;
+              true
+            ),
+            ( ( member(SottoConc2,ListaSottoConc),
+                control_dep(AltroConc,SottoConc2,DepBranch,Class,Method),
+                not( member(AltroConc,ListaSottoConc) )
+              ) ->
+              assert_ifnotalready(control_dep(AltroConc,Concetto,DepBranch,Class,Method)) ;
+              true
+            )
+          ),
+          DepBranchList ),
+        forall( member(SottoConc3,ListaSottoConc),
+                (
                   forall( ( data_dep(Type,SottoConc3,AltroConc,DepVar,DepLevel,Class,Method),
-                            not( member(AltroConc,ListaSottoConc) ) 
-                          ), 
+                            not( member(AltroConc,ListaSottoConc) )
+                          ),
                    assert_ifnotalready(data_dep(Type,Concetto,AltroConc,DepVar,DepLevel,Class,Method))
-                  ), 
+                  ),
                   forall( ( data_dep(Type,AltroConc,SottoConc3,DepVar,DepLevel,Class,Method),
-                            not( member(AltroConc,ListaSottoConc) ) 
-                          ),  
+                            not( member(AltroConc,ListaSottoConc) )
+                          ),
                    assert_ifnotalready(data_dep(Type,AltroConc,Concetto,DepVar,DepLevel,Class,Method))
-                  ), 
-                  forall( data_dep(Type,SottoConc3,SottoConc3,DepVar,DepLevel,Class,Method), 
-                   assert_ifnotalready(data_dep(Type,Concetto,Concetto,DepVar,DepLevel,Class,Method)) 
+                  ),
+                  forall( data_dep(Type,SottoConc3,SottoConc3,DepVar,DepLevel,Class,Method),
+                   assert_ifnotalready(data_dep(Type,Concetto,Concetto,DepVar,DepLevel,Class,Method))
                   )
-                ) 
+                )
               )
-      ),    
+      ),
       AltroConcList ).
 
   assert_ifnotalready(Term) :-
@@ -431,11 +431,11 @@
     inst_in_exp(ElemIdent,ElemUseStp,RhsUseStp,Class,Method),
     equiv_exp(ElemDefStp,ElemUseStp,Class,Method),
     ( Def == Use ->
-      ( HierElUp = elem_update(ID,HierDef), 
+      ( HierElUp = elem_update(ID,HierDef),
         CompList = [Def],
         ChainVarsList = [ElemIdent]
       ) ;
-      ( data_dep(anti,Def,Use,ElemIdent,0,Class,Method), 
+      ( data_dep(anti,Def,Use,ElemIdent,0,Class,Method),
         dep_chain(HierChain,Use,Def,CompList,ChainVarsListButFirst),
         append([ElemIdent],ChainVarsListButFirst,ChainVarsList),
         HierElUp = elem_update(IN,HierChain)
@@ -448,7 +448,7 @@
   elem_shift_r(ID,elem_shift(ID,HierElUp),ElemShiftStruct) :-
     elem_update_r(ElUp,HierElUp,ElemShiftStruct),
     ElemShiftStruct = elem_update_s(ElemIdent,[ElemDefStp,ElemUseStp],CompList,ChainVarsList),
-    forall( member(ChainStm,CompList,Pos), 
+    forall( member(ChainStm,CompList,Pos),
             ( member(ChainVar,ChainVarsList,Pos),
               assign_r(ChainStm,_,_,ChainStmRhs,Class,Method),
               inst_descent_of_add_or_leftminus_unique(ChainVar,ChainStmRhs,_,Class,Method)),
@@ -475,7 +475,7 @@
     inst_descent_of_add_or_leftminus_unique(Ident,Op1,IdentStp,Class,Method),
     not( inst_in_exp(Ident,Op2,Class,Method) ).
 
-    
+
 
 /*********** spiegazione al problema sollevato dal professore da trovare nei fatti prodotti da cocktail, SubScribe è parametro di uscita *********/
 /* forse l' ultima non va bene (solo Ident) per gli arrays */
@@ -488,7 +488,7 @@
       divide(Exp,Op1,Op2,Class,Method)
     ),
     inst_descent_of_mul_or_leftdiv_unique(Ident,Op1,IdentStp,Class,Method),
-    not( inst_in_exp(Ident,Op2,Class,Method) ). 
+    not( inst_in_exp(Ident,Op2,Class,Method) ).
 
 
 /******************** spiegazione da trovare nei fatti prodotti da cocktail, SubScribe è parametro di uscita *********/
@@ -499,14 +499,14 @@
 
   inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Exp,IdentStp,Class,Method) :-
     ( comm_add_exp(Exp,Op1,Op2,Class,Method) ;
-      minus(Exp,Op1,Op2,Class,Method)    
+      minus(Exp,Op1,Op2,Class,Method)
     ),
     inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Op1,IdentStp,Class,Method),
-    not( inst_in_exp(Ident,Op2,Class,Method) ). 
+    not( inst_in_exp(Ident,Op2,Class,Method) ).
 
   inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Exp,IdentStp,Class,Method) :-
     ( comm_mul_exp(Exp,Op1,Op2,Class,Method) ;
-      divide(Exp,Op1,Op2,Class,Method)    
+      divide(Exp,Op1,Op2,Class,Method)
     ),
     inst_descent_of_add_or_leftminus_or_mul_or_leftdiv_unique(Ident,Op1,IdentStp,Class,Method),
     not( inst_in_exp(Ident,Op2,Class,Method) ).
@@ -521,7 +521,7 @@
       comm_or_exp(Exp,Op1,Op2,Class,Method)
     ),
     inst_descent_of_and_or_or_unique(Ident,Op1,IdentStp,Class,Method),
-    not( inst_in_exp(Ident,Op2,Class,Method) ). 
+    not( inst_in_exp(Ident,Op2,Class,Method) ).
 
 
 
@@ -532,7 +532,7 @@
   inst_descent_of_xor_unique(Ident,Exp,IdentStp,Class,Method) :-
     comm_xor_exp(Exp,Op1,Op2,Class,Method),
     inst_descent_of_xor_unique(Ident,Op1,IdentStp,Class,Method),
-    not( inst_in_exp(Ident,Op2,Class,Method) ). 
+    not( inst_in_exp(Ident,Op2,Class,Method) ).
 
 
 
@@ -543,7 +543,7 @@
   inst_descent_of_modulo_unique(Ident,Exp,IdentStp,Class,Method) :-
     modulo(Exp,Op1,Op2,Class,Method),
     inst_descent_of_modulo_unique(Ident,Op1,IdentStp,Class,Method),
-    not( inst_in_exp(Ident,Op2,Class,Method) ). 
+    not( inst_in_exp(Ident,Op2,Class,Method) ).
 
 
 
@@ -571,7 +571,7 @@
 
 
 
- 
+
   exp_composed_of_minus(Exp,Class,Method) :-
     minus(Exp,Op1,Op2,Class,Method),
     ( inst(Op1,_,Class,Method) ;
@@ -661,7 +661,7 @@
     exp_descent_of_modulo(SubExp,Exp,Class,Method):-
       modulo(Exp,Op1,Op2,Class,Method),
       exp_descent_of_modulo(SubExp,Op1,Class,Method).
-   
+
 
     exp_descent_of_add_or_leftminus(SubExp,Exp,Class,Method):- SubExp = Exp.
     exp_descent_of_add_or_leftminus(SubExp,Exp,Class,Method):-
@@ -702,49 +702,49 @@
 
 
 
-  inherit_dep_strip_mined_scan(Concetto,ListaSottoConc) :- 
-    findall( AltroConc, 
-      (  
-        between(1,Concetto,AltroConc), 
-        findall( DepBranch, 
-          ( member(DepBranch,[true,false]), 
-            ( ( forall( member(SottoConc1,ListaSottoConc), 
-                        control_dep(SottoConc1,AltroConc,DepBranch) ), 
-                not( member(AltroConc,ListaSottoConc) ) 
-              ) -> 
-              assert_ifnotalready(control_dep(Concetto,AltroConc,DepBranch)) ; 
-              true 
+  inherit_dep_strip_mined_scan(Concetto,ListaSottoConc) :-
+    findall( AltroConc,
+      (
+        between(1,Concetto,AltroConc),
+        findall( DepBranch,
+          ( member(DepBranch,[true,false]),
+            ( ( forall( member(SottoConc1,ListaSottoConc),
+                        control_dep(SottoConc1,AltroConc,DepBranch) ),
+                not( member(AltroConc,ListaSottoConc) )
+              ) ->
+              assert_ifnotalready(control_dep(Concetto,AltroConc,DepBranch)) ;
+              true
             ),
-/* diff: AltroConc deve dipendere da entrambi OutLoop e InLoop */    
+/* diff: AltroConc deve dipendere da entrambi OutLoop e InLoop */
             ( ( member(OutLoop,ListaSottoConc,1),
-                member(InLoop,ListaSottoConc,2), 
-                control_dep(AltroConc,OutLoop,DepBranch), 
-                control_dep(AltroConc,InLoop,DepBranch), 
-                not( member(AltroConc,ListaSottoConc) )  
-              ) ->  
-              assert_ifnotalready(control_dep(AltroConc,Concetto,DepBranch)) ; 
-              true  
-            )     
-          ),      
-          DepBranchList ), 
-        forall( member(SottoConc3,ListaSottoConc), 
-                ( 
+                member(InLoop,ListaSottoConc,2),
+                control_dep(AltroConc,OutLoop,DepBranch),
+                control_dep(AltroConc,InLoop,DepBranch),
+                not( member(AltroConc,ListaSottoConc) )
+              ) ->
+              assert_ifnotalready(control_dep(AltroConc,Concetto,DepBranch)) ;
+              true
+            )
+          ),
+          DepBranchList ),
+        forall( member(SottoConc3,ListaSottoConc),
+                (
                   forall( ( data_dep(Type,SottoConc3,AltroConc,DepVar,DepLevel),
-                            not( member(AltroConc,ListaSottoConc) ) 
-                          ), 
+                            not( member(AltroConc,ListaSottoConc) )
+                          ),
                    assert_ifnotalready(data_dep(Type,Concetto,AltroConc,DepVar,DepLevel))
-                  ), 
+                  ),
                   forall( ( data_dep(Type,AltroConc,SottoConc3,DepVar,DepLevel),
-                            not( member(AltroConc,ListaSottoConc) ) 
-                          ),  
+                            not( member(AltroConc,ListaSottoConc) )
+                          ),
                    assert_ifnotalready(data_dep(Type,AltroConc,Concetto,DepVar,DepLevel))
-                  ), 
-                  forall( data_dep(Type,SottoConc3,SottoConc3,DepVar,DepLevel), 
-                   assert_ifnotalready(data_dep(Type,Concetto,Concetto,DepVar,DepLevel)) 
+                  ),
+                  forall( data_dep(Type,SottoConc3,SottoConc3,DepVar,DepLevel),
+                   assert_ifnotalready(data_dep(Type,Concetto,Concetto,DepVar,DepLevel))
                   )
-                ) 
+                )
               )
-      ),    
+      ),
       AltroConcList ).
 
 
@@ -754,7 +754,7 @@
 
 simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstStp,SubScrExp,SubScrPos) :-
     count_loop_r(Loop,HierLoop,IndexIdent,InitExpStp,LastExpStp,StepExpStp),
-    control_dep(ScanStm,Loop,true,Class,Method),   
+    control_dep(ScanStm,Loop,true,Class,Method),
     exp_in_stm(ArrayInstStp,ScanStm,HierScanStm),
     arr_el_inst(ArrayInstStp,ArrayIdent,SubScrList),
     array_var(ArrayIdent,ArrayType,NDim,ArrayRangesList),
@@ -810,14 +810,14 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
           ) ;
           ( comm_add_exp(SubScrAddOp1,AddAddOp1,AddAddOp2),
             comm_mul_exp(AddAddOp2,SubScrMulOp1,SubScrMulOp2),
-            scal_var_inst(SubScrMulOp2,OutIndexIdent), 
+            scal_var_inst(SubScrMulOp2,OutIndexIdent),
             val_inst(SubScrMulOp1,integer,StripSize),
             val_inst(AddAddOp1,integer,TempValue1),
             TempValue1 is 1 - InInitValue - (OutInitValue * StripSize)
           )
         )
       ) ;
-      ( 
+      (
         ( ( comm_mul_exp(InInitExpStp,InInitMulOp1,InInitMulOp2),
             scal_var_inst(InInitMulOp2,OutIndexIdent),
             val_inst(InInitMulOp1,integer,StripSize),
@@ -829,7 +829,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
             val_inst(InInitMulOp1,integer,StripSize),
             val_inst(InInitAddOp1,integer,TempValue2),
             InInitValue is TempValue2 + (OutInitValue * StripSize)
-          ) 
+          )
         ),
         ( ( comm_mul_exp(InLastExpStp,InLastMulOp1,InLastMulOp2),
             scal_var_inst(InLastMulOp2,OutIndexIdent),
@@ -842,7 +842,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
             val_inst(InLastMulOp1,integer,StripSize),
             val_inst(InLastAddOp1,integer,TempValue3),
             TempValue3 is InInitValue - 1 - OutInitValue * StripSize + StripSize
-          ) 
+          )
         ),
         InStepExpStp = lnull,
         ( ( scal_var_inst(SubScrExp,InIndexIdent),
@@ -931,7 +931,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
               ChainScanDefListVarButFirst),
     append([ArrayIdent],ChainScanDefListVarButFirst,ChainScanDefListVar),
 /* definire per bene le prop. della riduzione, e appl. a ChainScanDefListStm */
-    not( inst_in_exp(IndexIdent,ElemDefStp) ), 
+    not( inst_in_exp(IndexIdent,ElemDefStp) ),
     not(( inst_in_exp(VarIdent,VarStp,ElemDefStp),
           var_inst(VarStp,VarIdent),
           data_dep(true,Stm,Scan,IndexIdent,AnyLevel1), /* check il livello */
@@ -941,11 +941,11 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
           last(VarIdent,ListVar)
        )),
     not(( data_dep(true,ElemUseStm,Stm2,ElemIdent,AnyLevel2), /* check il liv.*/
-          Stm2 \== ElemUseStm, 
+          Stm2 \== ElemUseStm,
           control_dep(Stm2,Scan,true),
           Stm2 \== ElemDefStm
        )),
-    ( ScanStm == ElemDefStm  -> 
+    ( ScanStm == ElemDefStm  ->
         HierRed = shift_reduction(IN,HierScan,HierElSh) ;
         HierRed = shift_reduction(IN,HierScan,HierElSh,HierChainScanDef)
     ),
@@ -1000,7 +1000,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
     HierElSh1 == HierElSh2,   /* restr: = elem_shift per le due rid (ridond.) */
     HierScan1 =.. [ScanName,Scan1|Scan1HierList],
     append(Scan1HierListButLast,[HierScan1Stm],Scan1HierList),
-    HierScan2 =.. [ScanName,Scan2|Scan2HierList], 
+    HierScan2 =.. [ScanName,Scan2|Scan2HierList],
     append(Scan2HierListButLast,[HierScan2Stm],Scan2HierList),
     Scan1HierListButLast == Scan2HierListButLast,
     /* i due scan devono essere comp. dagli stessi count loop(s) */
@@ -1045,7 +1045,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
     append(Temp2ListLength,TailArr2ChainListVar,Arr2ChainListVar),
     TailArr1ChainListVar = [LastDistArr1ChainVar|CommonSubList],
     TailArr2ChainListVar = [LastDistArr2ChainVar|CommonSubList],
-      /* restr: controllo sulla parte comune: = CommonSubList */ 
+      /* restr: controllo sulla parte comune: = CommonSubList */
     nth1(1,CommonArr12ChainListStm,FirstCommonArr12ChainStm),
     assign_r(FirstCommonArr12ChainStm,_,_,FirstCommonArr12ChainStmRhs),
     sub_exp_in_exp(RootCommonExp,FirstCommonArr12ChainStmRhs),
@@ -1090,7 +1090,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
     asserisci( array_updated_from_temp_var_in_count_loop_r(IN,
                using_temp_var(IN,HierTempUsing),Loop,IndexIdent,TempInstStp,
                TempUpdate,ArrayIdent,ArrayInstStp) ).
-    
+
   matrix_vector_multiply_r(IN,MVStruct,
                          Array1Ident,ScPrPosInArray1,MVPosInArray1,
                          Array2Ident,ScPrPosInArray2,
@@ -1185,7 +1185,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
       count_loop_r(Loop,HierLoop,IndexIdent,InitExpStp,LastExpStp,StepExpStp),
 */
     control_dep(ScPrUpdateAccum,Loop,true),
-/* in effetti serve, ma rallenta meledettamente 
+/* in effetti serve, ma rallenta meledettamente
     abs_control_dep(MVLoop,Loop,true),
 */
     member(SubScrExpArr2,SubScrListArr2,MmPosInArray2),
@@ -1213,7 +1213,7 @@ simple_scan(Loop,HierLoop,ScanStm,HierScanStm,Range,Stride,IndexIdent,ArrayInstS
 
 /**************** nuovi concetti *********************************************/
 
-swap_r(IdentVar1,IdentVar2,SwapSourceStp,SwapSinkStp,Var2AssignStp,Class,Method) :-	
+swap_r(IdentVar1,IdentVar2,SwapSourceStp,SwapSinkStp,Var2AssignStp,Class,Method) :-
 							   (
 							     (
 								(
@@ -1224,7 +1224,7 @@ swap_r(IdentVar1,IdentVar2,SwapSourceStp,SwapSinkStp,Var2AssignStp,Class,Method)
 									data_dep('anti',SwapSinkStp,Var2AssignStp,IdentVar2,_,Class,Method),
 									assign_r(IDvar2,assign(IDvar2,Var2AssignStp),Var2AssignStp,Class,Method)
 								),
-								(	
+								(
 									data_dep('anti',Var2AssignStp,SwapSourceStp,IdentVar1,_,Class,Method),
 									assign_r(IDvar1,assign(IDvar1,SwapSourceStp),SwapSourceStp,Class,Method)
 								)
@@ -1250,7 +1250,7 @@ swap_r(IdentVar1,IdentVar2,SwapSourceStp,SwapSinkStp,Var2AssignStp,Class,Method)
 									data_dep('output',Var2AssignStp,DummyStp,IdentVar2,_,Class,Method),
 									assign_r(IDvar2,assign(IDvar2,Var2AssignStp),Var2AssignStp,Class,Method)
 								),
-								(	
+								(
 									data_dep('anti',SwapSinkStp,Var2AssignStp,IdentVar1,_,Class,Method),
 									assign_r(IDvar1,assign(IDvar1,SwapSinkStp),SwapSinkStp,Class,Method)
 								)
@@ -1272,7 +1272,7 @@ array_inversion_r(IdentArray,Class,Method) :-  (
 								control_dep(SwapSourceStp,Stp,_,Class,Method),
 								control_dep(SwapSinkStp,Stp,_,Class,Method),
 								control_dep(Var2AssignStp,Stp,_,Class,Method)
-							     ),								
+							     ),
 							     for_r(IDfor,for(IDfor,Stp),InitStp,Stp,IncrStp,Class,Method),
 							     asserta( array_inversion(IdentArray) ).
 
@@ -1285,12 +1285,12 @@ array_sort_r(IdentArray,Class,Method) :- 	     (
 			  					control_dep(SwapSourceStp,IfStp,_,Class,Method),
 			  					control_dep(SwapSinkStp,IfStp,_,Class,Method),
 			  					control_dep(Var2AssignStp,IfStp,_,Class,Method)
-				 			     ),								
+				 			     ),
 			 				     (
 			  					if_r(IDif,if(IDif,IfStp),IfStp,Class,Method),
 			  					control_dep(IfStp,InnerForStp,_,Class,Method),
 			  					nested_for_r(Nfor,InnerForStp)
-			 				     ),				  
+			 				     ),
 			 				     asserta( array_sort(IdentArray) ).
 
 nested_for_r(Nfor,InnerForStp) :- 		     (
@@ -1298,7 +1298,7 @@ nested_for_r(Nfor,InnerForStp) :- 		     (
 			  					control_dep(InnerForStp,OuterForStp,_,Class,Method),
 			  					for_r(IDfor2,for(IDfor2,OuterForStp),InitOuterStp,OuterForStp,IncrOuterStp,Class,Method),
 			  					Nfor is 2,
-								asserta( nested_for(Nfor) ),!	
+								asserta( nested_for(Nfor) ),!
 			  				     );
 			 				     (
 		        					for_r(IDfor,for(IDfor,InnerForStp),InitInnerStp,InnerForStp,IncrInnerStp,Class,Method),
@@ -1307,10 +1307,10 @@ nested_for_r(Nfor,InnerForStp) :- 		     (
 			  					control_dep(MiddleForStp,OuterForStp,_,Class,Method),
 			  					for_r(IDfor3,for(IDfor3,OuterForStp),InitOuterStp,OuterForStp,IncrOuterStp,Class,Method),
 			  					Nfor is 3,
-								asserta( nested_for(Nfor) ),!	
+								asserta( nested_for(Nfor) ),!
 			  				     ).
 
-count_loop_r(ID,count_loop(ID,X),CntVarIdent,InitExpStp,StepExpStp) :-	
+count_loop_r(ID,count_loop(ID,X),CntVarIdent,InitExpStp,StepExpStp) :-
 								 (
 									for_r(IDfor,X,InitExpStp,Stp,StepExpStp,Class,Method),
     									scalar_var_inst(CntVarIdent,InitExpStp,Class,Method),
@@ -1324,7 +1324,7 @@ count_loop_r(ID,count_loop(ID,X),CntVarIdent,InitExpStp,StepExpStp) :-
 										post_decr(InitStp,VarDefStp,Class,Method);
 										post_incr(InitStp,VarDefStp,Class,Method);
 										pre_decr(InitStp,VarDefStp,Class,Method);
-										pre_incr(InitStp,VarDefStp,Class,Method)	
+										pre_incr(InitStp,VarDefStp,Class,Method)
 									),
 									scalar_var_def(CntVarIdent,VarDefStp,Class,Method),
 									InitExpStp = InitStp,
@@ -1340,7 +1340,7 @@ count_loop_r(ID,count_loop(ID,X),CntVarIdent,InitExpStp,StepExpStp) :-
 										post_decr(InitStp,VarDefStp,Class,Method);
 										post_incr(InitStp,VarDefStp,Class,Method);
 										pre_decr(InitStp,VarDefStp,Class,Method);
-										pre_incr(InitStp,VarDefStp,Class,Method)	
+										pre_incr(InitStp,VarDefStp,Class,Method)
 									),
 									scalar_var_def(CntVarIdent,VarDefStp,Class,Method),
 									InitExpStp = InitStp,
@@ -1365,7 +1365,7 @@ scalar_array_reduction_r(ScalarVarName,ArrayVarName) :-    	   assign_r(ID,assig
 										   scalar_var_inst(ScalarVarName,Stp,Class,Method),
 										   array_reference(ArrayVarName,Stp,_,Class,Method),
 										   asserta( scalar_array_reduction(ScalarVarName,ArrayVarName) ).
-                                                                
+
 basic_linear_induction_variable_r(IdentVarName,Tipo) :- (
 										for_r(IDfor,for(IDfor,ForStp),InitStp,ForStp,StepStp,Class,Method),
 										assign_r(_,assign(_,InitStp),InitStp,Class,Method),
@@ -1381,7 +1381,7 @@ basic_linear_induction_variable_r(IdentVarName,Tipo) :- (
 									           ),
 											VarStp\==StepStp
 								 		),
-										not( 
+										not(
 										    (
 											assign_r(_,assign(_,Op2Stp),Op2Stp,Class,Method),
                                                                   (
@@ -1394,7 +1394,7 @@ basic_linear_induction_variable_r(IdentVarName,Tipo) :- (
 									  ),
 									  control_dep(VarStp,ForStp,_,Class,Method),
 									  Tipo = basic_linear,
-									  asserta( basic_linear_induction_variable(IdentVarName,Tipo) ).								  
+									  asserta( basic_linear_induction_variable(IdentVarName,Tipo) ).
 
 basic_geometric_induction_variable_r(IdentVarName,Tipo) :- (
 										for_r(IDfor,for(IDfor,ForStp),InitStp,ForStp,StepStp,Class,Method),
@@ -1411,7 +1411,7 @@ basic_geometric_induction_variable_r(IdentVarName,Tipo) :- (
 											),
 											VarStp\==StepStp
 								 		),
-										not( 
+										not(
 											(
 											assign_r(_,assign(_,Op2Stp),Op2Stp,Class,Method),
                                                                   (
@@ -1426,7 +1426,7 @@ basic_geometric_induction_variable_r(IdentVarName,Tipo) :- (
 									  Tipo = basic_geometric,
 									  asserta( basic_geometric_induction_variable(IdentVarName,Tipo) ).
 
-linear_induction_variable_r(IdentVarName,Tipo) :-      while_r(IDwhile,while(IDwhile,WhileStp),WhileStp,Class,Method),    
+linear_induction_variable_r(IdentVarName,Tipo) :-      while_r(IDwhile,while(IDwhile,WhileStp),WhileStp,Class,Method),
 									 (
 									   assign_r(IDassign,assign(IDassign,VarStp),VarStp,Class,Method),
 									   scalar_var_inst(CntVarIdent,VarStp,Class,Method),
@@ -1435,8 +1435,8 @@ linear_induction_variable_r(IdentVarName,Tipo) :-      while_r(IDwhile,while(IDw
 										plus(VarStp,CntVarIdent,Op2,Class,Method);
 										minus(VarStp,CntVarIdent,Op2,Class,Method)
 									     )
-									   ),	   
-									   not( 
+									   ),
+									   not(
 										  (
 										    assign_r(_,assign(_,Op2Stp),Op2Stp,Class,Method),
                                                                 (
@@ -1456,7 +1456,7 @@ linear_induction_variable_r(IdentVarName,Tipo) :-      while_r(IDwhile,while(IDw
   						        		  Tipo = linear,
 									  asserta( linear_induction_variable(IdentVarName,Tipo) ).
 
-geometric_induction_variable_r(IdentVarName,Tipo) :-    while_r(IDwhile,while(IDwhile,WhileStp),WhileStp,Class,Method),    
+geometric_induction_variable_r(IdentVarName,Tipo) :-    while_r(IDwhile,while(IDwhile,WhileStp),WhileStp,Class,Method),
 									 (
 									   assign_r(IDassign,assign(IDassign,VarStp),VarStp,Class,Method),
 									   scalar_var_inst(CntVarIdent,VarStp,Class,Method),
@@ -1465,8 +1465,8 @@ geometric_induction_variable_r(IdentVarName,Tipo) :-    while_r(IDwhile,while(ID
 										times(VarStp,CntVarIdent,Op2,Class,Method);
 										divide(VarStp,CntVarIdent,Op2,Class,Method)
 									     )
-									   ),	   
-									   not( 
+									   ),
+									   not(
 										  (
 										    assign_r(_,assign(_,Op2Stp),Op2Stp,Class,Method),
                                                                 (
@@ -1487,7 +1487,7 @@ geometric_induction_variable_r(IdentVarName,Tipo) :-    while_r(IDwhile,while(ID
 									  asserta( linear_induction_variable(IdentVarName,Tipo) ).
 
 
-basic_polynomial_induction_variable_r(BasicIdentVarName,OuterIdentVarName,Tipo) :- 
+basic_polynomial_induction_variable_r(BasicIdentVarName,OuterIdentVarName,Tipo) :-
 									  (
 										for_r(IDfor,for(IDfor,ForStp),InitStp,ForStp,StepStp,Class,Method),
 										assign_r(_,assign(_,InitStp),InitStp,Class,Method),
@@ -1504,7 +1504,7 @@ basic_polynomial_induction_variable_r(BasicIdentVarName,OuterIdentVarName,Tipo) 
 											BasicVarStp\==StepStp,
 											BasicVarStp\==InitStp
 								 		),
-										not( 
+										not(
 										    (
 											assign_r(_,assign(_,Op2Stp),Op2Stp,Class,Method),
                                                                   (
@@ -1534,8 +1534,8 @@ basic_polynomial_induction_variable_r(BasicIdentVarName,OuterIdentVarName,Tipo) 
 									  Tipo = basic_polynomial,
 									  asserta( basic_polynomial_induction_variable(BasicIdentVarName,OuterIdentVarName,Tipo) ).
 
-polynomial_induction_variable_r(IdentVarName,OuterIdentVarName,Tipo) :- 
-                                                       while_r(IDwhile,while(IDwhile,WhileStp),WhileStp,Class,Method),    								
+polynomial_induction_variable_r(IdentVarName,OuterIdentVarName,Tipo) :-
+                                                       while_r(IDwhile,while(IDwhile,WhileStp),WhileStp,Class,Method),
 									 (
 									   assign_r(IDassign,assign(IDassign,VarStp),VarStp,Class,Method),
 									   scalar_var_inst(CntVarIdent,VarStp,Class,Method),
@@ -1545,7 +1545,7 @@ polynomial_induction_variable_r(IdentVarName,OuterIdentVarName,Tipo) :-
 										minus(VarStp,CntVarIdent,Op2,Class,Method)
 									     )
 									   ),
-               	     	  	 		  		   not( 
+               	     	  	 		  		   not(
 										  (
 										    assign_r(_,assign(_,Op2Stp),Op2Stp,Class,Method),
                                                                 (
