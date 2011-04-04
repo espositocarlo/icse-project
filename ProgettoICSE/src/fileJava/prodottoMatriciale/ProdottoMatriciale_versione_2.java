@@ -70,7 +70,7 @@ public class ProdottoMatriciale_versione_2 {
             { 2, 3, -2 },
             {3, -1, 1}
             };
-            */
+          */
         int i;
         int j;
         int k;
@@ -78,7 +78,7 @@ public class ProdottoMatriciale_versione_2 {
     for (i=0; i<3; i++)
 		//secondo ciclo for sulle colonne di R
         for (j=0; j<3; j++) {
-            R[i][j]=0;
+          //  R[i][j]=0;
             //terzo cilco for sulle colonne di B
 			for (k=0; k<3; k++)
                 R[i][j] = R[i][j] + A[i][k] * B[k][j];
@@ -86,16 +86,16 @@ public class ProdottoMatriciale_versione_2 {
 
 
         //Stampo la matrice risultato
-        /*
-         for(int i = 0;i<3;i++){
+      /*
+         for(i = 0;i<3;i++){
             
-                for(int j=0;j<3;j++){
-                    System.out.println(R[i][j]);
+                for(j=0;j<3;j++){
+                    System.out.print(R[i][j]+" ");
                 }
 
                 System.out.println();
             }
-            */
+        */
 
 
 }
