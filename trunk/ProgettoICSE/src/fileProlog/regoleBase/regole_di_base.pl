@@ -1,10 +1,5 @@
 %#############################################################################################################
 % questo file contiene delle regole di base per il riconoscimento di concetti algoritmici
-%
-% DA FARE:  documentare il file (nell'apposita sezione della relazione)
-%			creare una lista di KB, funtori prolog necessari a questo file
-%
-%
 %#############################################################################################################
 
 
