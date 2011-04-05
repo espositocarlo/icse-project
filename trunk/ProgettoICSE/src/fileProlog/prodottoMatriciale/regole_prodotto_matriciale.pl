@@ -1,9 +1,9 @@
 % regole base
 :-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/regoleBase/regole_di_base.pl').
 % versione2
-:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_2/control_dependence_Prodotto_matriciale _v2.pl').
-:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_2/data_dependence_Prodotto_matriciale_v2.pl').
-:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_2/db_Syntax_prodotto_matriciale_v2.pl').
+%:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_2/control_dependence_Prodotto_matriciale _v2.pl').
+%:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_2/data_dependence_Prodotto_matriciale_v2.pl').
+%:-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_2/db_Syntax_prodotto_matriciale_v2.pl').
 
 %versione1
 :-consult('C:/Users/Carlo/Documents/NetBeansProjects/ProgettoICSE/src/fileProlog/prodottoMatriciale/KB/versione_1/control_dependence_Prodotto_matriciale_v1.pl').
