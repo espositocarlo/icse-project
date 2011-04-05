@@ -89,14 +89,14 @@ ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe,Metodo
 copia_array(ID_expression,Array1,Array2) :-
 				scalar_var_inst(ID_expression,Array1,Classe,Metodo),			%Array1
 				uguaglianza(ID_expression,Uguaglianza_ref,Classe,Metodo),		% = ...
-				scalar_var_ref(Uguaglianza_ref,Array2,Classe,Metodo),						%Array2
+				scalar_var_ref(Uguaglianza_ref,Array2),						%Array2
 				(
-					array_var_def(Array1,Tipo,Dimensione,_,_,Classe,Metodo);
-					array_var_def(Array1,Tipo,Dimensione,_,_,Classe,null) %Metodo = null quando l'array è definito come variabile globale della Classe
+					array_var_def(Array1,Tipo,Dimensione,_,Dimensioni,Classe,Metodo);
+					array_var_def(Array1,Tipo,Dimensione,_,Dimensioni,Classe,null) 
 				),
 				(
-					array_var_def(Array2,Tipo,Dimensione,_,_,Classe,Metodo);
-					array_var_def(Array2,Tipo,Dimensione,_,_,Classe,null) %Metodo = null quando l'array è definito come variabile globale della Classe
+					array_var_def(Array2,Tipo,Dimensione,_,Dimensioni,Classe,Metodo);
+					array_var_def(Array2,Tipo,Dimensione,_,Dimensioni,Classe,null) 
 				)
 				.
 %-------------------------------------------------------------------------------------------------------------
