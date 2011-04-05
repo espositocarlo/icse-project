@@ -59,6 +59,12 @@ ciclo_for(ID, Variabile, Funtore_init, Funtore_exit, Funtore_incr, Classe,Metodo
 				greater_equal(Exit_CicloFor,Greater_equal_ref_1,Greater_equal_ref_2,Classe,Metodo),
 				scalar_var_ref(Greater_equal_ref_1,Variabile)
 			) -> Funtore_exit = greater_equal(Exit_CicloFor,Greater_equal_ref_1,Greater_equal_ref_2,Classe,Metodo)
+			;
+			% esempio i<=10
+			(
+				less_equal(Exit_CicloFor,Less_equal_ref_1,Less_equal_ref_2,Classe,Metodo),
+				scalar_var_ref(Less_equal_ref_1,Variabile)
+			) -> Funtore_exit = less_equal(Exit_CicloFor,Less_equal_ref_1,Less_equal_ref_2,Classe,Metodo)
 		),
 		% incremento
 		(
@@ -105,9 +111,8 @@ copia_array(ID_expression,Array1,Array2) :-
  appartenenza(Equazione,Id,Posizione) :- (
 										  plus_commutativo(Equazione,Riferimento1,_,_,_)  ;
 										  times_commutativo(Equazione,Riferimento1,_,_,_) 
-										  %;
-										 % divide(Equazione,Riferimento1,Riferimento2,_,_)
-										  %DA FARE aggiungere gli altri operatori binari 
+										 ;
+										 divide(Equazione,Riferimento1,Riferimento2,_,_)
 										 ),
 										 (
 										   appartenenza(Riferimento1,Id,Posizione);
@@ -146,10 +151,10 @@ copia_array(ID_expression,Array1,Array2) :-
 									  (
 										times_commutativo(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
 									  ) -> Oggetto_equivalente = times_commutativo(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
-									%;
-									%  (
-									%	divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
-									%  ) -> Oggetto_equivalente = divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
+									;
+									  (
+										divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
+									  ) -> Oggetto_equivalente = divide(Equazione2,Riferimento1,Riferimento2,Classe,Metodo)
 									).
 
 equivalenza(Equazione,Id1,Id1)  :- appartenenza(Equazione,Id1,right).
