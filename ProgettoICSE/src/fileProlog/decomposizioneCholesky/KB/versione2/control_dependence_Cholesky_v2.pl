@@ -8,58 +8,30 @@
 %			- metodo = nome del metodo
 %#############################################################################################################
 
-     % for (j = 0; j < n; j++) { % questo è il cilco for 37
-	  
-	  % tempLrowj = matriceU[j] è innestata in ciclo for 37
-	  control_dependence(37,expr_14,choleskyDecomposition,main).
-      
-	  % d = 0.0 è innestata in ciclo for 37
-	  control_dependence(37,expr_15,choleskyDecomposition,main).
-      
-	  %  	for (k = 0; k < j; k++) { questo è il cilco for 28 ed è innestato nel ciclo for 37
-	  control_dependence(37, 28, choleskyDecomposition,main).
-      
-	  %       tempLrowk = matriceU[k] è innestata nel ciclo for 28
-	  control_dependence(28,expr_18,choleskyDecomposition,main).
-	  
-      %      s = 0.0; è innestata nel cilco for 28
-	  control_dependence(28,expr_19,choleskyDecomposition,main).
-	  
-      %      for (i = 0; i < k; i++) { questo è il cilco for 23 ed è innestato nel ciclo for 28
-	  control_dependence(28, 23, choleskyDecomposition,main).
-	  
-      %         s = s + tempLrowk[i]*tempLrowj[i]; questo è innestato nel cilco for 23
-	  control_dependence(23,expr_22,choleskyDecomposition,main).
-	  
-      %      } fine ciclo for 23
+%        for (i = 0; i < N; i++)  { %for 24
+%            for (j = 0; j <= i; j++) { %for 22 innestato nel ciclo for 24
+		control_dependence(24, 22, decomposizionecholesky_ver2,main).
+%                double sum = 0.0; % def_list_11 innestato nel ciclo for 22
+		control_dependence(22,def_list_11,decomposizionecholesky_ver2,main).
+%                for (k = 0; k < j; k++) { %for 15 innestato nel ciclo for 22
+		control_dependence(22, 15, decomposizionecholesky_ver2,main).
+%                    sum = sum + L[i][k] * L[j][k]; % expr_14 innestata nel ciclo for 15
+		control_dependence(15,expr_14,decomposizionecholesky_ver2,main).
+%                } %fine for 15
+%                if (i == j) { %if_20 innestato nel ciclo for 22
+		control_dependence(22,if_20,decomposizionecholesky_ver2,main).
+%                    L[i][i] = Math.sqrt(A[i][i] - sum); %expr_17 innestato nel if_20
+		control_dependence(if_20,expr_17,decomposizionecholesky_ver2,main).
 	
-      %      s = (matriceA[j][k] - s)/matriceU[k][k]; è innestato nel ciclo for 28
-	  control_dependence(28,expr_25,choleskyDecomposition,main).
-	  
-      %      tempLrowj[k] = s; è innestato nel ciclo for 28
-	  control_dependence(28,expr_26,choleskyDecomposition,main).
-	  
-      %      d = d + s*s; è innestato nel cilco for 28
-	  control_dependence(28,expr_27,choleskyDecomposition,main).
-	  
-      %  } fine cilco for 28
-	  
-	  
-      %   d = matriceA[j][j] - d; è innestato nel ciclo for 37
-	  control_dependence(37,expr_30,choleskyDecomposition,main).
-	  
-      %   matriceU[j][j] = Math.sqrt(d); è innestato nel cilco for 37
-	  control_dependence(37,expr_31,choleskyDecomposition,main).
-	  
-      %   for (m = j+1; m < n; m++) { questo è il ciclo for 35 è innestato nel ciclo for 37
-	  control_dependence(37, 35, choleskyDecomposition,main).
-	  
-      %      matriceU[j][m] = 0.0; è innestato nel cilco for 35
-	  control_dependence(35,expr_34,choleskyDecomposition,main).
-	  
-      %   } fine ciclo for 35
-	  
-      % } fine ciclo for 37
-
+%                } %fine if_20
+%                else { % else_19 innestato nel if_20
+		control_dependence(if_20,else_19,decomposizionecholesky_ver2,main).
+%                       L[i][j] = 1.0 / L[j][j] * (A[i][j] - sum); % expr_19
+		control_dependence(else_19,expr_19,decomposizionecholesky_ver2,main).
+	
+%                } %fine else_19
+%            } %fine for 22
+%            
+%        } % fine for 24    
 
 

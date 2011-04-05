@@ -10,34 +10,24 @@
 %			- classe = nome della classe
 %			- metodo = nome del metodo
 %#############################################################################################################
-    % for (j = 0; j < n; j++) {
-        % tempLrowj = matriceU[j];  			-> expr_14
-        % d = 0.0; 								-> expr_15
-    % for (k = 0; k < j; k++) {
-         % tempLrowk = matriceU[k]; 			-> expr_18
-         % s = 0.0;  							-> expr_19
-    % for (i = 0; i < k; i++) {
-          % s = s + tempLrowk[i]*tempLrowj[i];  -> expr_22
-	data_dependence(true, expr_19, expr_22, variabile, 0, choleskyDecomposition,main).
-	data_dependence(true, expr_18, expr_22, variabile, 0, choleskyDecomposition,main).
-	data_dependence(true, expr_14, expr_22, variabile, 0, choleskyDecomposition,main).
-		% }
-     % s = (matriceA[j][k] - s)/matriceU[k][k]; -> expr_25
-	data_dependence(true, expr_22, expr_25, variabile, 0, choleskyDecomposition,main).
-     
-	 % tempLrowj[k] = s; 						-> expr_26
-	data_dependence(true, expr_25, expr_26, variabile, 0, choleskyDecomposition,main).
-     
-	 % d = d + s*s;								-> expr_27
-	data_dependence(true, expr_15, expr_27, variabile, 0, choleskyDecomposition,main).
-	data_dependence(true, expr_25, expr_27, variabile, 0, choleskyDecomposition,main).	
-     %    }
-     % d = matriceA[j][j] - d;					-> expr_30
-	data_dependence(true, expr_27, expr_30, variabile, 0, choleskyDecomposition,main).
-     
-	 %    matriceU[j][j] = Math.sqrt(d);		-> expr_31
-	data_dependence(true, expr_30, expr_31, variabile, 0, choleskyDecomposition,main).
-     %    for (m = j+1; m < n; m++) {
-     %      matriceU[j][m] = 0.0;				-> expr_34
-     %    }
-     % }
+   
+
+%        for (i = 0; i < N; i++)  { %for 24
+%            for (j = 0; j <= i; j++) { %for 22
+%                double sum = 0.0; % def_list_11
+%                for (k = 0; k < j; k++) { %for 15
+%                    sum = sum + L[i][k] * L[j][k]; % expr_14
+	data_dependence(true, def_list_11, expr_14, variabile, 0, decomposizionecholesky_ver2,main).
+%                }
+%                if (i == j) { %if_20
+%                    L[i][i] = Math.sqrt(A[i][i] - sum); %expr_17
+	data_dependence(true, expr_14, expr_17, variabile, 0, decomposizionecholesky_ver2,main).
+%                }
+%                else { 
+%                       L[i][j] = 1.0 / L[j][j] * (A[i][j] - sum); %expr_19
+	data_dependence(true, expr_14, expr_19, variabile, 0, decomposizionecholesky_ver2,main).
+	data_dependence(true, expr_17, expr_19, variabile, 0, decomposizionecholesky_ver2,main).
+%                }
+%            }
+%            
+%        }
